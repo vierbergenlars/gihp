@@ -1,0 +1,18 @@
+{
+    "name": "vierbergenlars/ghip",
+    "description": "Git SCM access through PHP",
+    "authors": [
+        {
+            "name": "Lars Vierbergen",
+            "email": "vierbergenlars@gmail.com"
+        }
+    ],
+    "require": {
+
+    },
+    "autoload": {
+        "psr-0": {
+            "gihp": "lib"
+        }
+    }
+}

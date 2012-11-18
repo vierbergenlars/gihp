@@ -1,5 +1,5 @@
 <?php
-namespace gihp/IO;
+namespace gihp\IO;
 
 /**
  * Abstracts all IO operations.
@@ -31,40 +31,6 @@ interface IOInterface
      */
     public function readBranches();
     /**
-     * Adds a new commit
-     * @param  \gihp\Commit $commit The commit to add
-     * @return bool
-     */
-    public function addCommit(\gihp\Commit $commit);
-    /**
-     * Removes a commit
-     * @param  \gihp\Commit $commit The commit to remove
-     * @return bool
-     */
-    public function removeCommit(\gihp\Commit $commit);
-    /**
-     * Lists all commits
-     * @return array
-     */
-    public function readCommits();
-    /**
-     * Adds a new tree
-     * @param  \gihp\Tree $tree The tree to add
-     * @return bool
-     */
-    public function addTree(\gihp\Tree $tree);
-    /**
-     * Remove a tree
-     * @param  \gihp\Tree $tree The tree to remove
-     * @return bool
-     */
-    public function removeTree(\gihp\Tree $tree);
-    /**
-     * Lists all trees
-     * @return array
-     */
-    public function readTrees();
-    /**
      * Adds a new reference
      * @param  \gihp\Ref\Reference $ref The reference to add
      * @return bool
@@ -92,12 +58,18 @@ interface IOInterface
      * @param  \gihp\Internal\Object $object The object to remove
      * @return bool
      */
-    public function removeObject(\gihp\Interal\Object $object);
+    public function removeObject(\gihp\Internal\Object $object);
     /**
      * Lists all objects
      * @return array
      */
     public function readObjects();
+    /**
+     * Reads an object
+     * @param  string                $sha1 The hash of the object
+     * @return \gihp\Internal\Object
+     */
+    public function readObject($sha1);
     /**
      * Moves the HEAD symbolic reference
      * @param  \gihp\Ref\SymbolicReference $ref The symbolic reference to move HEAD to
