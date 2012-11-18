@@ -49,16 +49,16 @@ interface IOInterface
     public function readRefs();
     /**
      * Adds a new object
-     * @param  \gihp\Internal\Object $object The object to add
+     * @param  \gihp\Object\Internal $object The object to add
      * @return bool
      */
-    public function addObject(\gihp\Internal\Object $object);
+    public function addObject(\gihp\Object\Internal $object);
     /**
      * Removes an object
-     * @param  \gihp\Internal\Object $object The object to remove
+     * @param  \gihp\Object\Internal $object The object to remove
      * @return bool
      */
-    public function removeObject(\gihp\Internal\Object $object);
+    public function removeObject(\gihp\Object\Internal $object);
     /**
      * Lists all objects
      * @return array
@@ -67,7 +67,7 @@ interface IOInterface
     /**
      * Reads an object
      * @param  string                $sha1 The hash of the object
-     * @return \gihp\Internal\Object
+     * @return \gihp\Object\Internal
      */
     public function readObject($sha1);
     /**

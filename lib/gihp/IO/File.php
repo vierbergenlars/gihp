@@ -34,7 +34,7 @@ class File implements IOInterface
     {
     }
 
-    public function addObject(\gihp\Internal\Object $object)
+    public function addObject(\gihp\Object\Internal $object)
     {
         $hash = $object->getSHA1();
         $dir = $this->path.'/.git/objects/'.substr($hash,0,2);
@@ -47,7 +47,7 @@ class File implements IOInterface
         return file_put_contents($path, $encoded);
     }
 
-    public function removeObject(\gihp\Internal\Object $object)
+    public function removeObject(\gihp\Object\Internal $object)
     {
     }
 

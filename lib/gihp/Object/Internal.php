@@ -1,8 +1,8 @@
 <?php
 
-namespace gihp\Internal;
+namespace gihp\Object;
 
-class Object
+class Internal
 {
     private $type;
     private $data;
