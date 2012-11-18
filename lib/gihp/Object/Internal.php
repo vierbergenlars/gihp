@@ -13,15 +13,19 @@ class Internal {
         $this->data = $data;
     }
 
-    function updateData($data) {
+    protected function updateData($data) {
         $this->data = $data;
+    }
+
+    protected function appendData($data) {
+        $this->data.=$data;
     }
 
     function getSHA1() {
         return sha1($this->__toString());
     }
 
-    private function getTypeString() {
+    protected function getTypeString() {
         switch($this->type) {
             case self::COMMIT:
                 return 'commit';
