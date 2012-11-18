@@ -29,7 +29,7 @@ class File implements IOInterface {
     function readRefs() {
     }
 
-    function addObject(\gihp\Internal\Object $object) {
+    function addObject(\gihp\Object\Internal $object) {
         $hash = $object->getSHA1();
         $dir = $this->path.'/.git/objects/'.substr($hash,0,2);
         if(!is_dir($dir)) {
@@ -40,7 +40,7 @@ class File implements IOInterface {
         return file_put_contents($path, $encoded);
     }
 
-    function removeObject(\gihp\Internal\Object $object) {
+    function removeObject(\gihp\Object\Internal $object) {
     }
 
     function readObjects() {
