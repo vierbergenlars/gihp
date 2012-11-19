@@ -15,7 +15,7 @@ class Internal
         $this->data = $data;
     }
 
-    protected function updateData($data)
+    protected function setData($data)
     {
         $this->data = $data;
     }
