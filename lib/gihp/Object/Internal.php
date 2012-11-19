@@ -43,4 +43,30 @@ class Internal {
         $store = $header.$this->data;
         return $store;
     }
+
+    static function import($string) {
+        $parts = explode("\0", $string, 3);
+        $header = $parts[0];
+        $data = $parts[1];
+
+        if(!preg_match('/^(commit|blob|tree) ([0-9]+)$/', $header, $matches)) {
+            throw new \RuntimeException('Bad object header');
+        }
+        $type = $matches[1];
+        $length = (int)$matches[2];
+
+        if(strlen($data) !== $length) {
+            throw new \RuntimeException('Data length mismatch');
+        }
+        switch($type) {
+            case 'commit':
+                return Commit::import($data);
+            case 'blob':
+                return Blob::import($data);
+            case 'tree':
+                return Tree::import($data);
+            default:
+                throw \LogicException('Bad object type. Should have been checked already');
+        }
+    }
 }
