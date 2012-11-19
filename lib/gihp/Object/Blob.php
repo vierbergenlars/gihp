@@ -8,4 +8,9 @@ class Blob extends Internal
     {
         parent::__construct(parent::BLOB, $data);
     }
+
+    public static function import($data)
+    {
+        return new self($data);
+    }
 }
