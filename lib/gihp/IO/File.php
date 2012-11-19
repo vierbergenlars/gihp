@@ -47,6 +47,13 @@ class File implements IOInterface {
     }
 
     function readObject($sha1) {
+        $dir = $this->path.'/.git/objects/'.substr($sha1,0,2);
+        $path = $dir.'/'.substr($sha1,2);
+        if(!is_file($path)) {
+            throw new \RuntimeException('Object not found');
+        }
+        $decoded = gzuncompress(file_get_contents($path));
+        return \gihp\Object\Internal::import($decoded);
     }
 
     function moveHead(\gihp\Ref\SymbolicReference $ref) {
