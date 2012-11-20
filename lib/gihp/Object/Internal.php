@@ -3,7 +3,7 @@
 namespace gihp\Object;
 
 use gihp\Defer\Deferrable;
-use gihp\Defer\Loader;
+use gihp\Defer\Loader as DLoader;
 
 /**
  * Base class for all sha1-based objects
@@ -12,11 +12,6 @@ use gihp\Defer\Loader;
  * @internal
  */
 class Internal implements Deferrable {
-    /**
-     * Type of the object
-     * @var int
-     */
-    private $type;
     /**
      * Data in the object
      * @var string
@@ -37,11 +32,9 @@ class Internal implements Deferrable {
 
     /**
      * Creates a new Internal object
-     * @param int $type The type of the object
      * @param string|null $data The data in the object
      */
     function __construct($type, $data=null) {
-        $this->type = $type;
         $this->data = $data;
     }
 
@@ -84,16 +77,16 @@ class Internal implements Deferrable {
      * @return string
      */
     protected function getTypeString() {
-        switch($this->type) {
-            case self::COMMIT:
-                return 'commit';
-            case self::BLOB:
-                return 'blob';
-            case self::TREE:
-                return 'tree';
-            default:
-                return $this->type;
+        if($this instanceof Commit) {
+            return 'commit';
         }
+        if($this instanceof Blob) {
+            return 'blob';
+        }
+        if($this instanceof Tree) {
+            return 'tree';
+        }
+        throw new \RuntimeException('Bad type');
     }
 
     /**
@@ -114,8 +107,8 @@ class Internal implements Deferrable {
      * @param string $string The raw data
      * @return Internal A subclass of this class, Commit, Blob or Tree
      */
-    static function import(Loader $loader, $string) {
-        $parts = explode("\0", $string, 3);
+    static function import(DLoader $loader, $string) {
+        $parts = explode("\0", $string, 2);
         $header = $parts[0];
         $data = $parts[1];
 
