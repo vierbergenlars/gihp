@@ -2,6 +2,8 @@
 
 namespace gihp\Object;
 
+use gihp\Defer\Loader;
+
 /**
  * A casual blob object.
  *
@@ -16,7 +18,7 @@ class Blob extends Internal
         parent::__construct(parent::BLOB, $data);
     }
 
-    public static function import($data)
+    public static function import(Loader $loader, $data)
     {
         return new self($data);
     }

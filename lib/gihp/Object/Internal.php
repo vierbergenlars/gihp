@@ -2,7 +2,16 @@
 
 namespace gihp\Object;
 
-class Internal
+use gihp\Defer\Deferrable;
+use gihp\Defer\Loader;
+
+/**
+ * Base class for all sha1-based objects
+ *
+ * Parses the basic git structure for these objects and verifies them
+ * @internal
+ */
+class Internal implements Deferrable
 {
     /**
      * Type of the object
@@ -108,7 +117,13 @@ class Internal
         return $store;
     }
 
-    public static function import($string)
+    /**
+     * Imports a raw object from disk
+     * @param  Loader   $loader The loader to load embedded references
+     * @param  string   $string The raw data
+     * @return Internal A subclass of this class, Commit, Blob or Tree
+     */
+    public static function import(Loader $loader, $string)
     {
         $parts = explode("\0", $string, 3);
         $header = $parts[0];
@@ -125,11 +140,11 @@ class Internal
         }
         switch ($type) {
             case 'commit':
-                return Commit::import($data);
+                return Commit::import($loader, $data);
             case 'blob':
-                return Blob::import($data);
+                return Blob::import($loader, $data);
             case 'tree':
-                return Tree::import($data);
+                return Tree::import($loader, $data);
             default:
                 throw \LogicException('Bad object type. Should have been checked already');
         }
