@@ -147,7 +147,7 @@ class Object
 
             file_put_contents($dirname.'/'.$filename, $code);
         }
-        $hackreflection = new \ReflectionClass(__NAMESPACE__.'\\HackedClasses\\'.$ns.$name);
+        $hackreflection = new \ReflectionClass(__NAMESPACE__.'\\HackedClasses'.$ns.'\\'.$name);
         $hack = $hackreflection->newInstanceWithoutConstructor();
 
         $deferprop = $hackreflection->getProperty('defer');
