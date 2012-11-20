@@ -92,7 +92,19 @@ class Object {
         $name = $this->reflection->getShortName();
         $dirname = __DIR__.'/HackedClasses/'.str_replace('\\', '/', $ns);
         $filename = $name.'.php';
-        if(!file_exists($dirname.'/'.$filename)) {
+
+        $modified = false;
+        if(file_exists($dirname.'/'.$filename)) {
+            $realclassmod = filemtime($this->reflection->getFileName());
+            $hackclassmod = filemtime($dirname.'/'.$filename);
+
+            var_dump($realclassmod, $hackclassmod);
+            if($hackclassmod < $realclassmod) {
+                $modified = true;
+            }
+        }
+
+        if(!file_exists($dirname.'/'.$filename)||$modified) {
 
             $tpl_params = '%s$%s %s,';
             $tpl_params_call = '$%s,';
