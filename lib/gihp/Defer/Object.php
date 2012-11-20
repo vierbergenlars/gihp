@@ -97,8 +97,6 @@ class Object {
         if(file_exists($dirname.'/'.$filename)) {
             $realclassmod = filemtime($this->reflection->getFileName());
             $hackclassmod = filemtime($dirname.'/'.$filename);
-
-            var_dump($realclassmod, $hackclassmod);
             if($hackclassmod < $realclassmod) {
                 $modified = true;
             }
