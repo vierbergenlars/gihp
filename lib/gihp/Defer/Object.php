@@ -54,9 +54,32 @@ class Object {
             if($value instanceof Reference) {
                 $value = $value->loadRef();
             }
+            elseif(is_array($value)) {
+                $value = self::injectDataInArray($value);
+            }
             $prop->setValue($class, $value);
         }
         return $class;
+    }
+
+    /**
+     * Recursively injects References in an array
+     * @param array $array The array to parse
+     * @return array The array with references resolved
+     */
+    private static function injectDataInArray($array) {
+        foreach($array as &$value) {
+            if(is_array($value)) {
+                $value = self::injectDataInArray($value);
+            }
+            elseif($value instanceof Reference) {
+                $value = $value->loadRef();
+            }
+            else {
+                continue;
+            }
+        }
+        return $array;
     }
 
     /**
