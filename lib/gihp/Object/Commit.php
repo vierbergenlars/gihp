@@ -2,6 +2,10 @@
 
 namespace gihp\Object;
 
+use gihp\Defer\Loader as DLoader;
+use gihp\Defer\Reference;
+use gihp\Defer\Object as Defer;
+
 class Commit extends Internal
 {
     protected $message;
@@ -20,6 +24,11 @@ class Commit extends Internal
         $this->author_time = $this->commit_time = $date;
         $this->{'parent'} = $parent;
         parent::__construct(parent::COMMIT);
+    }
+
+    public function dump()
+    {
+        var_dump($this);
     }
 
     public function setCommitter(\gihp\Metadata\Person $committer, \DateTime $date=null)
@@ -48,7 +57,7 @@ class Commit extends Internal
      * @param  string $commit The raw commit data
      * @return Commit An instanciated commit that was represented by the raw data
      */
-    public static function import(Loader $loader, $commit)
+    public static function import(DLoader $loader, $commit)
     {
         $parts = explode("\n\n", $commit, 2);
         $message = $parts[1];
@@ -68,7 +77,7 @@ class Commit extends Internal
         else $parent = new Reference($loader, $parent);
         $author = new \gihp\Metadata\Person($matches[4], $matches[5]);
         $author_time = \DateTime::createFromFormat('U O', $matches[6]);
-        $comitter = new \gihp\Metadata\Person($matches[7], $matches[8]);
+        $committer = new \gihp\Metadata\Person($matches[7], $matches[8]);
         $commit_time = \DateTime::createFromFormat('U O', $matches[9]);
 
         return Defer::defer(

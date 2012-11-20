@@ -2,7 +2,7 @@
 
 namespace gihp\Object;
 
-use gihp\Defer\Loader;
+use gihp\Defer\Loader as DLoader;
 
 /**
  * A casual blob object.
@@ -18,7 +18,7 @@ class Blob extends Internal
         parent::__construct(parent::BLOB, $data);
     }
 
-    public static function import(Loader $loader, $data)
+    public static function import(DLoader $loader, $data)
     {
         return new self($data);
     }
