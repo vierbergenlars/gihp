@@ -4,6 +4,7 @@ namespace gihp\Defer;
 
 /**
  * Defer the loading of an object
+ * @internal
  */
 class Object
 {
@@ -19,20 +20,16 @@ class Object
     private $reflection;
 
     /**
-     * Object loader
-     * @var Loader
-     */
-    private $loader;
-    /**
      * Creates a new defer object
      * @param array  $data   The data to set the properties to, as an array
-     * @param string $object The full class name of the class to load
+     * @param string $object The full class name of the class to load. The class must implement Deferrable
      */
-    public function __construct($data, $object, Loader $loader)
+    public function __construct($data, $object)
     {
         $this->data = $data;
         $this->reflection = new \ReflectionClass($object);
-        $this->loader = $loader;
+        if(!$this->reflection->implementsInterface(__NAMESPACE__.'\\Deferrable'))
+            throw new \LogicException($object.' should implement Deferrable');
     }
 
     /**
@@ -55,6 +52,7 @@ class Object
         foreach ($this->data as $key=>$value) {
             $prop = $reflection->getProperty($key);
             $prop->setAccessible(true);
+            // When the value given only is a reference, load it.
             if ($value instanceof Reference) {
                 $value = $value->loadRef();
             }
@@ -140,5 +138,12 @@ class Object
     public function getClass()
     {
         return $this->hackClass();
+    }
+
+    public static function defer($data, $object)
+    {
+        $defer = new self($data, $object);
+
+        return $defer->getClass();
     }
 }
