@@ -24,14 +24,38 @@ class Commit extends Internal {
         parent::__construct(parent::COMMIT);
     }
 
-    function dump() {
-        var_dump($this);
-    }
-
     function setCommitter(\gihp\Metadata\Person $committer, \DateTime $date=null) {
         $this->committer = $committer;
         if($date === null) $date = new \DateTime;
         $this->commit_time = $date;
+    }
+
+    function getMessage() {
+        return $this->message;
+    }
+
+    function getTree() {
+        return $this->tree;
+    }
+
+    function getAuthor() {
+        return $this->author;
+    }
+
+    function getAuthorTime() {
+        return $this->author_time;
+    }
+
+    function getCommitter() {
+        return $this->committer;
+    }
+
+    function getCommitTime() {
+        return $this->commit_time;
+    }
+
+    function getParent() {
+        return $this->{'parent'};
     }
 
     function __toString() {
