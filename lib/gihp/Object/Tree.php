@@ -4,7 +4,7 @@ namespace gihp\Object;
 
 use gihp\Defer\Object as Defer;
 use gihp\Defer\Reference;
-use gihp\Defer\Loader;
+use gihp\Defer\Loader as DLoader;
 
 /**
  * A git tree
@@ -137,7 +137,7 @@ class Tree extends Internal {
      * @param string $tree The raw tree data
      * @return Tree The tree represented by the raw object
      */
-    static function import(Loader $loader, $tree) {
+    static function import(DLoader $loader, $tree) {
         $parts = explode("\0", $tree);
 
         $map = array();
