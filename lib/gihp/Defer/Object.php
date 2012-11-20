@@ -56,7 +56,7 @@ class Object
             $prop = $reflection->getProperty($key);
             $prop->setAccessible(true);
             if ($value instanceof Reference) {
-                $value = $value->loadRef($this->loader);
+                $value = $value->loadRef();
             }
             $prop->setValue($class, $value);
         }

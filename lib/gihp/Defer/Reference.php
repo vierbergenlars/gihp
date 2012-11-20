@@ -5,13 +5,15 @@ namespace gihp\Defer;
 class Reference
 {
     private $ref;
-    public function __construct($ref)
+    private $loader;
+    public function __construct(Loader $loader, $ref)
     {
         $this->ref = $ref;
+        $this->loader = $loader;
     }
 
-    public function loadRef(Loader $loader)
+    public function loadRef()
     {
-        return $loader->load($this->ref);
+        return $this->loader->load($this->ref);
     }
 }
