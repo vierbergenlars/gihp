@@ -53,7 +53,8 @@ class File implements IOInterface {
             throw new \RuntimeException('Object not found');
         }
         $decoded = gzuncompress(file_get_contents($path));
-        return \gihp\Object\Internal::import($decoded);
+        $loader = new \gihp\Object\Loader($this);
+        return \gihp\Object\Internal::import($loader, $decoded);
     }
 
     function moveHead(\gihp\Ref\SymbolicReference $ref) {
