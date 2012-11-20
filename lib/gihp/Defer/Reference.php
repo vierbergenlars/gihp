@@ -4,11 +4,13 @@ namespace gihp\Defer;
 
 class Reference {
     private $ref;
-    function __construct($ref) {
+    private $loader;
+    function __construct(Loader $loader, $ref) {
         $this->ref = $ref;
+        $this->loader = $loader;
     }
 
-    function loadRef(Loader $loader) {
-        return $loader->load($this->ref);
+    function loadRef() {
+        return $this->loader->load($this->ref);
     }
 }
