@@ -21,12 +21,27 @@ class File implements IOInterface {
     }
 
     function addRef(\gihp\Ref\Reference $ref) {
+        $file = $this->path.'/.git/refs/'.$ref->getPath();
+        if(is_file($file)) {
+            throw new \RuntimeException('Ref already exists');
+        }
+        file_put_contents($file, $ref);
     }
 
     function removeRef(\gihp\Ref\Reference $ref) {
     }
 
     function readRefs() {
+    }
+
+    function readRef($path) {
+        $file = $this->path.'/.git/refs/'.$path;
+        if(!is_file($file)) {
+            throw new \RuntimeException('Ref not found');
+        }
+        $contents = file_get_contents($file);
+        $loader = new \gihp\Ref\Loader($this);
+        return \gihp\Ref\Reference::import($loader, $path."\0".$contents);
     }
 
     function addObject(\gihp\Object\Internal $object) {
