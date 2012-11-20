@@ -25,6 +25,10 @@ class File implements IOInterface
     public function addRef(\gihp\Ref\Reference $ref)
     {
         $file = $this->path.'/.git/refs/'.$ref->getPath();
+        $dir = dirname($file);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
         if (is_file($file)) {
             throw new \RuntimeException('Ref already exists');
         }
@@ -33,6 +37,12 @@ class File implements IOInterface
 
     public function removeRef(\gihp\Ref\Reference $ref)
     {
+        $file = $this->path.'/.git/refs/'.$ref->getPath();
+        if (is_file($file)) {
+            unlink($file);
+        } else {
+            throw new \RuntimeException('Ref not found');
+        }
     }
 
     public function readRefs()
@@ -42,6 +52,7 @@ class File implements IOInterface
     public function readRef($path)
     {
         $file = $this->path.'/.git/refs/'.$path;
+
         if (!is_file($file)) {
             throw new \RuntimeException('Ref not found');
         }
