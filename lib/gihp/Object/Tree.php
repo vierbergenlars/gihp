@@ -2,17 +2,47 @@
 
 namespace gihp\Object;
 
+/**
+ * A git tree
+ *
+ * A tree contains references to blobs and other trees.
+ * It also records file modes.
+ */
 class Tree extends Internal {
+    /**
+     * Directory type
+     */
     const DIR = '040000';
+    /**
+     * File type not executable
+     */
     const FILE_NOEXEC = '100644';
+    /**
+     * File type not executable, writable by group
+     */
     const FILE_NOEXEC_GROUPW = '100664';
+    /**
+     * File type executable
+     */
     const FILE_EXEC = '100755';
+    /**
+     * Symbolic link (not implemented)
+     */
     const SYMLINK = '120000';
+    /**
+     * Git link (not implemented)
+     */
     const GITLINK = '160000';
     function __construct() {
         parent::__construct(parent::TREE);
     }
 
+    /**
+     * Adds an object to the tree
+     * @param string $name The name of the object
+     * @param Internal $object A tree object or a Blob
+     * @param string $mode When the object is a blob, the mode of the file as a string
+     */
     function addObject($name, Internal $object, $mode = '644') {
         if($object instanceof self) {
             $mode = self::DIR;
