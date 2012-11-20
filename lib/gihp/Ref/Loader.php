@@ -29,8 +29,8 @@ class Loader implements DLoader {
      * @param string $path The path to the reference
      * @return Internal
      */
-    function load($sha1) {
-        return $this->io->readObject($sha1);
+    function load($path) {
+        return $this->io->readRef($path);
     }
 
     /**
