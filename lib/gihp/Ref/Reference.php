@@ -22,32 +22,48 @@ class Reference implements Deferrable {
     const HEAD = 'heads';
 
     /**
-     * The path to the reference
+     * The commit that is referenced
+     * @var Commit
+     */
+    protected $commit;
+    /**
+     * The name of the head
+     * @internal the branch name
      * @var string
      */
-    private $path;
+    protected $name;
     /**
-     * The data the reference contains
-     * @var string
+     * Creates a new head reference
+     * @internal creates a new branch
+     * @param string $name The name of the head reference
+     * @param Commit $commit The commit the reference points to
      */
-    private $data;
-    /**
-     * Creates a new reference
-     * @param string $path The path to the reference
-     * @param string $data The data the reference contains
-     */
-    function __construct($path, $data=null) {
-        $this->setData($path."\0".$data);
+    function __construct($name, Commit $commit) {
+        $this->name = $name;
+        $this->commit = $commit;
     }
 
     /**
-     * Sets the internal data of the reference
-     * @internal Actually takes a serialized data stream and gets data and path from them
+     * Updates the commit the reference points to
+     * @param Commit $commmit
      */
-    function setData($data) {
-        list($path, $data) = explode("\0", $data, 2);
-        $this->path = $this->getTypeAsString().'/'.$path;
-        $this->data = $data;
+    function setCommit(Commit $commit) {
+        $this->commit = $commit;
+    }
+
+    /**
+     * Gets the commit the reference points to
+     * @return Commit
+     */
+    function getCommit() {
+        return $this->commit;
+    }
+    /**
+     * Gets the name of the head reference
+     * @internal the branche's name
+     */
+    function getName() {
+        return $this->name;
     }
 
     /**
@@ -70,7 +86,7 @@ class Reference implements Deferrable {
      * @internal it's just the SHA
      */
     function getData() {
-        return $this->data;
+        return $this->commit->getSHA1();
     }
 
     /**
@@ -78,7 +94,7 @@ class Reference implements Deferrable {
      * @internal The whole path
      */
     function getPath() {
-        return $this->path;
+        return $this->getTypeAsString().'/'.$this->name;
     }
 
     /**
