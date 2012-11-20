@@ -24,6 +24,11 @@ class File implements IOInterface
 
     public function addRef(\gihp\Ref\Reference $ref)
     {
+        $file = $this->path.'/.git/refs/'.$ref->getPath();
+        if (is_file($file)) {
+            throw new \RuntimeException('Ref already exists');
+        }
+        file_put_contents($file, $ref);
     }
 
     public function removeRef(\gihp\Ref\Reference $ref)
@@ -32,6 +37,18 @@ class File implements IOInterface
 
     public function readRefs()
     {
+    }
+
+    public function readRef($path)
+    {
+        $file = $this->path.'/.git/refs/'.$path;
+        if (!is_file($file)) {
+            throw new \RuntimeException('Ref not found');
+        }
+        $contents = file_get_contents($file);
+        $loader = new \gihp\Ref\Loader($this);
+
+        return \gihp\Ref\Reference::import($loader, $path."\0".$contents);
     }
 
     public function addObject(\gihp\Object\Internal $object)
