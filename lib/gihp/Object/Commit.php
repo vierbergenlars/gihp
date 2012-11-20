@@ -37,4 +37,44 @@ class Commit extends Internal {
         return parent::__toString();
     }
 
+    /**
+     * Imports the commit object
+     * @param Loader $loader The object loader
+     * @param string $commit The raw commit data
+     * @return Commit An instanciated commit that was represented by the raw data
+     */
+    static function import(Loader $loader, $commit) {
+        $parts = explode("\n\n", $commit, 2);
+        $message = $parts[1];
+        $header = $parts[0];
+
+
+        if(!preg_match('/^tree ([0-9a-f]{40})\\n'.
+        '(parent ([0-9a-f]{40})\\n)?'.
+        'author (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})\\n'.
+        'committer (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})$/', $header, $matches)) {
+            throw new \RuntimeException('Bad commit object');
+        }
+
+        $tree = $matches[1];
+        $tree = new Reference($loader, $tree);
+        $parent = $matches[3];
+        if($parent === '') $parent = null;
+        else $parent = new Reference($loader, $parent);
+        $author = new \gihp\Metadata\Person($matches[4], $matches[5]);
+        $author_time = \DateTime::createFromFormat('U O', $matches[6]);
+        $comitter = new \gihp\Metadata\Person($matches[7], $matches[8]);
+        $commit_time = \DateTime::createFromFormat('U O', $matches[9]);
+        return Defer::defer(
+            array(
+                'message'=>$message,
+                'tree'=>$tree,
+                'parent'=>$parent,
+                'author'=>$author,
+                'author_time'=>$author_time,
+                'committer'=>$committer,
+                'commit_time'=>$commit_time
+            ), __CLASS__);
+    }
+
 }
