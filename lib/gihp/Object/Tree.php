@@ -146,6 +146,7 @@ class Tree extends Internal {
         foreach($parts as $i=>$part) {
             if($i === 0) { //First object, partitial. Only mode and name
                 list($next_mode, $next_name) = explode(' ', $part, 2);
+                $map[$next_name]['mode'] = $next_mode;
             }
             elseif($length == $i) { //Last object, partitial. Only hash
                 $map[$next_name]['hash'] = $part;
@@ -164,7 +165,8 @@ class Tree extends Internal {
 
         foreach($map as $name=>$props) {
             $mode = $props['mode'];
-            $sha1 = unpack('H*', $props['hash']);
+            $decode = unpack('H*', $props['hash']);
+            $sha1 = $decode[1];
 
             $objects[$sha1] = new Reference($loader, $sha1);
             $modes[$sha1] = $mode;
