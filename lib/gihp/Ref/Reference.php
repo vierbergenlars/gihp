@@ -62,6 +62,15 @@ class Reference implements Deferrable
     {
         return $this->commit;
     }
+
+    /**
+     * Gets the SHA the reference refers to
+     * @return string
+     */
+    public function getSHA1()
+    {
+        return $this->commit->getSHA1();
+    }
     /**
      * Gets the name of the head reference
      * @internal the branche's name
