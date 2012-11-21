@@ -4,6 +4,9 @@ namespace gihp\Object;
 
 use gihp\Defer\Loader as DLoader;
 
+use gihp\IO\IOInterface;
+use gihp\IO\WritableInterface;
+
 /**
  * A casual blob object.
  *
@@ -11,11 +14,16 @@ use gihp\Defer\Loader as DLoader;
  * @internal Store all strings that you want in here. Just a wrapper around
  * Internal, but with the right data-type
  */
-class Blob extends Internal
+class Blob extends Internal implements WritableInterface
 {
     public function __construct($data)
     {
         parent::__construct(parent::BLOB, $data);
+    }
+
+    public function write(IOInterface $io)
+    {
+        $io->addObject($this);
     }
 
     public static function import(DLoader $loader, $data)
