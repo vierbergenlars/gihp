@@ -163,9 +163,9 @@ class Tree extends Internal implements WritableInterface {
             }
             else { // Normal objects, current hash and next mode and name
                 $map[$next_name]['hash'] = substr($part, 0, 20);
-                $map[$next_name]['mode'] = $next_mode;
                 $next_mode_name = substr($part, 20);
-                list($next_mode, $next_name) = explode(' ', $part, 2);
+                list($next_mode, $next_name) = explode(' ', $next_mode_name, 2);
+                $map[$next_name]['mode'] = $next_mode;
             }
         }
 
