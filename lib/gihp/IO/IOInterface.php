@@ -71,13 +71,13 @@ interface IOInterface {
     public function readObject($sha1);
     /**
      * Moves the HEAD symbolic reference
-     * @param \gihp\Ref\SymbolicReference $ref The symbolic reference to move HEAD to
+     * @param \gihp\Symref\SymbolicReference $ref The symbolic reference to move HEAD to
      * @return bool
      */
-    public function moveHead(\gihp\Ref\SymbolicReference $ref);
+    public function moveHead(\gihp\Symref\SymbolicReference $ref);
     /**
      * Reads the symbolic reference in HEAD
-     * @return \gihp\Ref\SymbolicReference
+     * @return \gihp\Symref\SymbolicReference
      */
     public function readHead();
     /**
