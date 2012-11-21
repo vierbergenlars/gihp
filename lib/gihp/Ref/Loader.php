@@ -28,8 +28,8 @@ class Loader implements DLoader
 
     /**
      * Loads the reference
-     * @param  string   $path The path to the reference
-     * @return Internal
+     * @param  string    $path The path to the reference
+     * @return Reference
      */
     public function load($path)
     {
