@@ -43,6 +43,14 @@ class File implements IOInterface {
     }
 
     function readRefs() {
+        $fsit = new RecursiveFileIterator($this->path.'/.git/refs', \FilesystemIterator::UNIX_PATHS|\FilesystemIterator::SKIP_DOTS);
+        $it = new \RecursiveIteratorIterator($fsit);
+        $refs = array();
+        foreach($it as $file) {
+            if(!is_file($file)) continue;
+            $refs[] = str_replace($this->path.'/.git/refs/', '', $file);
+        }
+        return $refs;
     }
 
     function readRef($path) {
