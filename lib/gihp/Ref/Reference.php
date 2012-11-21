@@ -7,11 +7,13 @@ use gihp\Defer\Loader as DLoader;
 use gihp\Defer\Object as Defer;
 use gihp\Object\Commit;
 
+use gihp\IO\IOInterface;
+use gihp\IO\WritableInterface;
 /**
  * The base of all references
  * @internal
  */
-class Reference implements Deferrable
+class Reference implements Deferrable, WritableInterface
 {
     /**
      * Reference is a tag
@@ -121,6 +123,12 @@ class Reference implements Deferrable
     public function __toString()
     {
         return $this->getData();
+    }
+
+    public function write(IOInterface $io)
+    {
+        $io->addRef($this);
+        $this->commit->write($io);
     }
 
     /**
