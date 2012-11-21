@@ -6,13 +6,16 @@ use gihp\Defer\Object as Defer;
 use gihp\Defer\Reference;
 use gihp\Defer\Loader as DLoader;
 
+use gihp\IO\IOInterface;
+use gihp\IO\WritableInterface;
+
 /**
  * A git tree
  *
  * A tree contains references to blobs and other trees.
  * It also records file modes.
  */
-class Tree extends Internal {
+class Tree extends Internal implements WritableInterface {
     /**
      * Directory type
      */
@@ -129,6 +132,13 @@ class Tree extends Internal {
             $this->appendData($this->modes[$sha].' '.$this->names[$sha].chr(0).pack('H*', $sha));
         }
         return parent::__toString();
+    }
+
+    function write(IOInterface $io) {
+        $io->addObject($this);
+        foreach($this->objects as $object) {
+            $object->write($io);
+        }
     }
 
     /**

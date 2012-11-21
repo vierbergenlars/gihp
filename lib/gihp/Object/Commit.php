@@ -6,7 +6,10 @@ use gihp\Defer\Loader as DLoader;
 use gihp\Defer\Reference;
 use gihp\Defer\Object as Defer;
 
-class Commit extends Internal {
+use gihp\IO\IOInterface;
+use gihp\IO\WritableInterface;
+
+class Commit extends Internal implements WritableInterface {
     protected $message;
     protected $tree;
     protected $author;
@@ -67,6 +70,12 @@ class Commit extends Internal {
         $data.="\n\n".$this->message;
         $this->setData($data);
         return parent::__toString();
+    }
+
+    function write(IOInterface $io) {
+        $io->addObject($this);
+        if($this->{'parent'}) $this->{'parent'}->write($io);
+        $this->tree->write($io);
     }
 
     /**
