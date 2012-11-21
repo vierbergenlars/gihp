@@ -96,12 +96,22 @@ class File implements IOInterface
         return \gihp\Object\Internal::import($loader, $decoded);
     }
 
-    public function moveHead(\gihp\Ref\SymbolicReference $ref)
+    public function moveHead(\gihp\Symref\SymbolicReference $ref)
     {
+        $file = $this->path.'/.git/HEAD';
+        file_put_contents($file, $ref);
     }
 
     public function readHead()
     {
+        $file = $this->path.'/.git/HEAD';
+        if (!is_file($file)) {
+            throw new \RuntimeException('HEAD not found');
+        }
+        $data = file_get_contents($file);
+        $loader = new \gihp\Symref\Loader($this);
+
+        return \gihp\Symref\SymbolicReference::import($loader, $data);
     }
 
     public function gc()
