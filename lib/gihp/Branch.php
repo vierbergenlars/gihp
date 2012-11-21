@@ -5,7 +5,8 @@ use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 use gihp\Object\Commit;
 use gihp\Ref\Head;
-
+use gihp\Metadata\Person;
+use gihp\Object\Tree;
 /**
  * A git branch
  */
@@ -17,25 +18,27 @@ class Branch implements WritableInterface
      */
     protected $ref;
     /**
+     * The name of the branch
+     * @var string
+     */
+    protected $name;
+    /**
      * The IOInterface the branch uses
      * @var gihp\IO\IOInterface
      */
     private $io;
-    /**
-     * New added objects that still need to be written
-     * @var array
-     */
-    private $objects_to_write = array();
     /**
      * Creates a new branch
      * @param IOInterface $io     The IO to use
      * @param string      $name   The name of the branch
      * @param Commit      $commit The HEAD commit of the branch
      */
-    public function __construct(IOInterface $io, $name, Commit $commit)
+    public function __construct(IOInterface $io, $name, Commit $commit=null)
     {
         $this->io = $io;
-        $this->ref = new Head($name, $commit);
+        $this->name = $name;
+        if($commit)
+            $this->ref = new Head($name, $commit);
     }
 
     /**
@@ -44,7 +47,7 @@ class Branch implements WritableInterface
      */
     public function getName()
     {
-        return $this->ref->getName();
+        return $this->name;
     }
 
     /**
@@ -53,6 +56,9 @@ class Branch implements WritableInterface
      */
     public function getHeadCommit()
     {
+        if(!$this->ref)
+
+            return null;
         return $this->ref->getCommit();
     }
 
@@ -62,6 +68,9 @@ class Branch implements WritableInterface
      */
     public function getHistory()
     {
+        if(!$this->getHeadCommit())
+
+            return array();
         $head = $this->getHeadCommit();
         $commits = array($head);
         while ($head = $head->getParent()) {
@@ -69,6 +78,18 @@ class Branch implements WritableInterface
         }
 
         return $commits;
+    }
+
+    /**
+     * Creates a new commit to the branch
+     * @param string $message The commit message
+     * @param Tree   $tree    The tree that describes the data in the commit
+     * @param Person $author  The author and committer of the commit
+     */
+    public function commit($message, Tree $tree, Person $author)
+    {
+        $commit = new Commit($message, $tree, $author, null, $this->getHeadCommit());
+        $this->advanceHead($commit);
     }
 
     /**
@@ -81,13 +102,18 @@ class Branch implements WritableInterface
     {
         $current = $this->getHeadCommit();
 
+        if (!$current) {
+            $this->ref = new Head($this->name, $commit);
+
+            return;
+        }
+
         while ($parent = $commit->getParent()) {
-            if ($parent->getSHA1() == $current->SHA1()) {
+            if ($parent->getSHA1() == $current->getSHA1()) {
                 $this->ref->setCommit($commit);
 
                 return;
             }
-            $this->objects_to_write[] = $parent;
         }
         throw new \RuntimeException('Cannot advance the head to a commit that is not a child of the head commit');
     }
@@ -99,12 +125,14 @@ class Branch implements WritableInterface
     public function write(IOInterface $io=null)
     {
         if($io === null) $io = $this->io;
-        $io->removeRef($this->ref);
-        $this->ref->write($io);
-        foreach ($this->objects_to_write as $commit) {
-            $commit->write($io);
+        if(!$this->ref)
+            throw new \LogicException('Branch cannot be written if no head reference exists');
+        try {
+            $io->removeRef($this->ref);
+        } catch (\RuntimeException $e) {
+            //Nothing to worry about, the ref just does not exist.
         }
-
+        $this->ref->write($io);
     }
 
     /**
