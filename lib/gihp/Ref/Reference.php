@@ -92,6 +92,14 @@ class Reference implements Deferrable, WritableInterface {
     }
 
     /**
+     * Gets the type of the ref
+     * @return string
+     */
+    function getType() {
+        return $this->getTypeAsString();
+    }
+
+    /**
      * Gets the data
      * @internal it's just the SHA
      */
