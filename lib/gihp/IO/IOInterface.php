@@ -46,6 +46,12 @@ interface IOInterface {
      * @return array
      */
     public function readRefs();
+
+    /**
+     * Reads a reference
+     * @return \gihp\Ref\Reference
+     */
+    public function readRef($path);
     /**
      * Adds a new object
      * @param \gihp\Object\Internal $object The object to add
