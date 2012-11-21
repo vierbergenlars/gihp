@@ -63,6 +63,7 @@ class File implements IOInterface {
             mkdir($dir);
         }
         $path = $dir.'/'.substr($hash,2);
+        if(file_exists($path)) return true;
         $encoded = gzcompress($object);
         return file_put_contents($path, $encoded);
     }
