@@ -5,7 +5,6 @@ namespace gihp\Ref;
 use gihp\Defer\Loader as DLoader;
 use gihp\Defer\Object as Defer;
 use gihp\Defer\Reference as DReference;
-use gihp\Object\Commit;
 
 /**
  * Head reference
