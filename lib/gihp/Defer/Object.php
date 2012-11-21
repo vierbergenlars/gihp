@@ -107,7 +107,7 @@ class Object
 
         if (!file_exists($dirname.'/'.$filename)||$modified) {
 
-            $tpl_params = '%s$%s %s,';
+            $tpl_params = '%s %s$%s %s,';
             $tpl_params_call = '$%s,';
             $tpl_methods = 'function %s(%s) {
                 $this->defer->injectData($this);
@@ -130,7 +130,12 @@ class Object
                 $parameter_call_code = '';
                 $parameters = $method->getParameters();
                 foreach ($parameters as $parameter) {
-
+                    $type = '';
+                    $type_class = $parameter->getClass();
+                    if ($type_class !== null) {
+                        $type = $type_class->getName();
+                        if($type != '') $type = '\\'.$type;
+                    }
                     $default_val = '';
                     if ($parameter->isDefaultValueAvailable()) {
                         $default_val = '='.var_export($parameter->getDefaultValue(), true);
@@ -140,7 +145,7 @@ class Object
                         $ref = '&';
                     }
                     $pname = $parameter->getName();
-                    $parameter_code.=sprintf($tpl_params, $ref, $pname, $default_val);
+                    $parameter_code.=sprintf($tpl_params, $type, $ref, $pname, $default_val);
                     $parameter_call_code .= sprintf($tpl_params_call, $pname);
                 }
                 $parameter_code = substr($parameter_code, 0, -1);
