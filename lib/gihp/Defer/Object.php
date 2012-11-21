@@ -110,13 +110,17 @@ class Object
             $tpl_params = '%s %s$%s %s,';
             $tpl_params_call = '$%s,';
             $tpl_methods = 'function %s(%s) {
-                $this->defer->injectData($this);
+                if (!$this->loaded) {
+                    $this->defer->injectData($this);
+                    $this->loaded = true;
+                }
 
                 return parent::%1$s(%s);
             }';
 
             $tpl_code = '<?php namespace gihp\\Defer\\HackedClasses%s;
     class %s extends %1$s\\%2$s {
+        private $loaded = false;
         private $defer;
         %s
     }';
