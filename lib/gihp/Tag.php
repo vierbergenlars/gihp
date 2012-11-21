@@ -64,7 +64,7 @@ class Tag implements WritableInterface
     {
         if($io === null) $io = $this->io;
         if(!$this->ref)
-            throw new \LogicException('Branch cannot be written if no head reference exists');
+            throw new \LogicException('Tag cannot be written if it does not point to a commit');
         $this->ref->write($io);
     }
 
