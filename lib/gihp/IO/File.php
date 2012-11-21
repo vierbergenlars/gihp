@@ -10,18 +10,6 @@ class File implements IOInterface
         $this->path = $path;
     }
 
-    public function addBranch(\gihp\Branch $branch)
-    {
-    }
-
-    public function removeBranch(\gihp\Branch $branch)
-    {
-    }
-
-    public function readBranches()
-    {
-    }
-
     public function addRef(\gihp\Ref\Reference $ref)
     {
         $file = $this->path.'/.git/refs/'.$ref->getPath();
@@ -87,10 +75,11 @@ class File implements IOInterface
 
     public function removeObject(\gihp\Object\Internal $object)
     {
-    }
+        $hash = $object->getSHA1();
+        $file = $this->path.'/.git/objects/'.substr($hash,0,2).'/'.substr($hash, 2);
+        if(!is_file($file)) return;
 
-    public function readObjects()
-    {
+        return unlink($file);
     }
 
     public function readObject($sha1)

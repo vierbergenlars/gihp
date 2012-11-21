@@ -14,23 +14,6 @@ interface IOInterface
      */
     public function __construct($path);
     /**
-     * Adds a new branch
-     * @param  \gihp\Branch $branch The branch to add
-     * @return bool
-     */
-    public function addBranch(\gihp\Branch $branch);
-    /**
-     * Removes a branch
-     * @param  \gihp\Branch $branch The branch to remove
-     * @return bool
-     */
-    public function removeBranch(\gihp\Branch $branch);
-    /**
-     * Lists all branches
-     * @return array
-     */
-    public function readBranches();
-    /**
      * Adds a new reference
      * @param  \gihp\Ref\Reference $ref The reference to add
      * @return bool
@@ -44,7 +27,7 @@ interface IOInterface
     public function removeRef(\gihp\Ref\Reference $ref);
     /**
      * Lists all references
-     * @return array
+     * @return array A list of reference names
      */
     public function readRefs();
 
@@ -65,11 +48,6 @@ interface IOInterface
      * @return bool
      */
     public function removeObject(\gihp\Object\Internal $object);
-    /**
-     * Lists all objects
-     * @return array
-     */
-    public function readObjects();
     /**
      * Reads an object
      * @param  string                $sha1 The hash of the object
