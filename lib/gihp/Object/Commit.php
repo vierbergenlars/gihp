@@ -45,10 +45,10 @@ class Commit extends Internal implements WritableInterface {
      */
     protected $commit_time;
     /**
-     * Parent commit, if any
-     * @var Commit|null
+     * Parent commits, if any
+     * @var array
      */
-    protected $parent;
+    protected $parents = array();
     /**
      * Creates a new commit object
      * @param string $message Commit message
@@ -63,7 +63,7 @@ class Commit extends Internal implements WritableInterface {
         $this->author = $this->committer = $author;
         if($date === null) $date = new \DateTime;
         $this->author_time = $this->commit_time = $date;
-        $this->{'parent'} = $parent;
+        $this->{'parents'}[] = $parent;
         parent::__construct(parent::COMMIT);
     }
 
@@ -132,10 +132,10 @@ class Commit extends Internal implements WritableInterface {
 
     /**
      * Gets the parent commit
-     * @return Commit|null
+     * @return array
      */
-    function getParent() {
-        return $this->{'parent'};
+    function getParents() {
+        return $this->{'parents'};
     }
 
     /**
@@ -144,8 +144,9 @@ class Commit extends Internal implements WritableInterface {
      */
     function __toString() {
         $data = 'tree '.$this->tree->getSHA1();
-        if($this->{'parent'})
-            $data.= "\n".'parent '.$this->{'parent'}->getSHA1();
+        foreach($this->parents as $parent) {
+            $data.="\n".'parent '.$parent->getSHA1();
+        }
         $data.="\n".'author '.$this->author.' '.$this->author_time->format('U O');
         $data.="\n".'committer '.$this->committer.' '.$this->commit_time->format('U O');
         $data.="\n\n".$this->message;
@@ -158,7 +159,9 @@ class Commit extends Internal implements WritableInterface {
      */
     function write(IOInterface $io) {
         $io->addObject($this);
-        if($this->{'parent'}) $this->{'parent'}->write($io);
+        foreach($this->parents as $parent) {
+            $parent->write($io);
+        }
         $this->tree->write($io);
     }
 
@@ -175,17 +178,23 @@ class Commit extends Internal implements WritableInterface {
 
 
         if(!preg_match('/^tree ([0-9a-f]{40})\\n'.
-        '(parent ([0-9a-f]{40})\\n)?'.
+        '((parent [0-9a-f]{40}\\n)*)'.
         'author (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})\\n'.
         'committer (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})$/', $header, $matches)) {
             throw new \RuntimeException('Bad commit object');
         }
-
         $tree = $matches[1];
         $tree = new Reference($loader, $tree);
-        $parent = $matches[3];
-        if($parent === '') $parent = null;
-        else $parent = new Reference($loader, $parent);
+        $parsed_parents = array();
+        $parents = explode("\n", $matches[2]);
+        foreach($parents as $parent) {
+            if(trim($parent) == '') continue;
+            if(!preg_match('/^parent ([0-9a-f]{40})$/', $parent, $pmatches)) {
+                throw new \RuntimeException('Bad commit object: parsing parents failed');
+            }
+            $parsed_parents[] = new Reference($loader, $pmatches[1]);
+        }
+        $parent = $parsed_parents;
         $author = new \gihp\Metadata\Person($matches[4], $matches[5]);
         $author_time = \DateTime::createFromFormat('U O', $matches[6]);
         $committer = new \gihp\Metadata\Person($matches[7], $matches[8]);
@@ -194,7 +203,7 @@ class Commit extends Internal implements WritableInterface {
             array(
                 'message'=>$message,
                 'tree'=>$tree,
-                'parent'=>$parent,
+                'parents'=>$parent,
                 'author'=>$author,
                 'author_time'=>$author_time,
                 'committer'=>$committer,

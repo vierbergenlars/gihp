@@ -65,11 +65,16 @@ class Branch implements WritableInterface {
         if(!$this->getHeadCommit())
             return array();
         $head = $this->getHeadCommit();
-        $commits = array($head);
-        while($head = $head->getParent()) {
-            $commits[] = $head;
+        return self::recurseParents($head);
+    }
+
+    static private function recurseParents(Commit $commit) {
+        $parents = $commit->getParents();
+        $ret = array($commit);
+        foreach($parents as $parent) {
+            $ret = array_merge($ret, self::recurseParents($parent));
         }
-        return $commits;
+        return $ret;
     }
 
     /**
