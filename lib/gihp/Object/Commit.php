@@ -75,6 +75,7 @@ class Commit extends Internal implements WritableInterface {
      *
      * @param Person $committer The actual committer
      * @param \DateTime $date The date the commit was made. If null, assume now.
+     */
     function setCommitter(Person $committer, \DateTime $date=null) {
         $this->committer = $committer;
         if($date === null) $date = new \DateTime;
@@ -132,6 +133,7 @@ class Commit extends Internal implements WritableInterface {
     /**
      * Gets the parent commit
      * @return Commit|null
+     */
     function getParent() {
         return $this->{'parent'};
     }
