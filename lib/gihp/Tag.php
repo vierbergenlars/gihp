@@ -43,7 +43,7 @@ class Tag implements WritableInterface {
 
     /**
      * Get the commit the tag points to
-     * @return Commit
+     * @return gihp\Object\Commit
      */
     function getCommit() {
         if(!$this->ref)
