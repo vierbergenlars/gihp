@@ -4,7 +4,7 @@ namespace gihp;
 
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
-use gihp\Object\Commit;
+use gihp\Object\Internal;
 use gihp\Ref\Tag as RTag;
 
 /**
@@ -27,7 +27,7 @@ class Tag implements WritableInterface
      * @var RTag
      */
     protected $ref;
-    public function __construct(IOInterface $io, $name, Commit $commit=null)
+    public function __construct(IOInterface $io, $name, Internal $commit=null)
     {
         $this->io = $io;
         $this->name = $name;
@@ -57,6 +57,17 @@ class Tag implements WritableInterface
     }
 
     /**
+     * Call magic!
+     * Functions that do exist in the linked \gihp\Ref\Tag object are called automatically
+     */
+    public function __call($func, $args)
+    {
+        if(!$this->ref) return null;
+
+        return call_user_func_array(array($this->ref, $func), $args);
+    }
+
+    /**
      * Writes the tag to IO
      * @param IOInterface $io Optionally a different IOInterface to write to
      */
@@ -76,7 +87,7 @@ class Tag implements WritableInterface
     public static function load(IOInterface $io, $name)
     {
         $ref = $io->readRef('tags/'.$name);
-        $commit = $ref->getCommit();
+        $commit = $ref->getObject();
 
         return new self($io, $name, $commit);
     }
