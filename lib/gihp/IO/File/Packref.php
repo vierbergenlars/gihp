@@ -2,6 +2,10 @@
 
 namespace gihp\IO\File;
 
+/**
+ * Expands packed references
+ * @internal
+ */
 class Packref
 {
     protected $dir;

@@ -5,6 +5,7 @@ namespace gihp\IO\File;
 /**
  * Hacking away on packfiles
  * https://github.com/patrikf/glip/blob/50edbd9c77eda1aa91fbb971403492b635cf9482/lib/git.class.php
+ * @internal
  */
 class Packfile
 {

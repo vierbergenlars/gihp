@@ -1,6 +1,9 @@
 <?php
 namespace gihp\IO\File;
 
+/**
+ * @internal
+ */
 class RecursiveFileIterator extends \RecursiveDirectoryIterator
 {
     public function getChildren()
