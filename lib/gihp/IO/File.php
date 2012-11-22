@@ -6,6 +6,9 @@ use gihp\IO\File\Packfile;
 use gihp\IO\File\Packref;
 use gihp\IO\File\RecursiveFileIterator;
 
+/**
+ * Disk IO. Works well with real git repositories
+ */
 class File implements IOInterface
 {
     private $path;
