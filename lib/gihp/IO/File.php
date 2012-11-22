@@ -4,6 +4,7 @@ namespace gihp\IO;
 
 use gihp\IO\File\Packfile;
 use gihp\IO\File\Packref;
+use gihp\IO\File\RecursiveFileIterator;
 
 class File implements IOInterface {
     private $path;
