@@ -7,9 +7,13 @@
             "email": "vierbergenlars@gmail.com"
         }
     ],
-    "require": {
-
-    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "http://github.com/vierbergenlars/gihp"
+        }
+    ],
+    "license": "MIT",
     "autoload": {
         "psr-0": {
             "gihp": "lib"
