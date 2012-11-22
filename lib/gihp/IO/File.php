@@ -3,11 +3,13 @@
 namespace gihp\IO;
 
 use gihp\IO\File\Packfile;
+use gihp\IO\File\Packref;
 
 class File implements IOInterface {
     private $path;
     function __construct($path) {
         $this->path = $path;
+        new Packref($this->path.'/.git');
     }
 
     function addRef(\gihp\Ref\Reference $ref) {
