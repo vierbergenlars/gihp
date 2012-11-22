@@ -2,6 +2,8 @@
 
 namespace gihp\IO;
 
+use gihp\IO\File\Packfile;
+
 class File implements IOInterface
 {
     private $path;
@@ -84,12 +86,11 @@ class File implements IOInterface
 
     public function readObject($sha1)
     {
-        $dir = $this->path.'/.git/objects/'.substr($sha1,0,2);
-        $path = $dir.'/'.substr($sha1,2);
-        if (!is_file($path)) {
-            throw new \RuntimeException('Object not found');
-        }
-        $decoded = gzuncompress(file_get_contents($path));
+        $dir = $this->path.'/.git/objects/';
+        static $packfile=null;
+        if(!$packfile)
+            $packfile = new Packfile($dir);
+        $decoded = $packfile->getObject($sha1);
         $loader = new \gihp\Object\Loader($this);
 
         return \gihp\Object\Internal::import($loader, $decoded);
