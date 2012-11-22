@@ -19,14 +19,27 @@ class Packfile
     public static function getTypeID($name)
     {
         if ($name == 'commit')
-        return Git::OBJ_COMMIT;
+        return self::OBJ_COMMIT;
         else if ($name == 'tree')
-        return Git::OBJ_TREE;
+        return self::OBJ_TREE;
         else if ($name == 'blob')
-        return Git::OBJ_BLOB;
+        return self::OBJ_BLOB;
         else if ($name == 'tag')
-        return Git::OBJ_TAG;
-        throw new Exception(sprintf('unknown type name: %s', $name));
+        return self::OBJ_TAG;
+        throw new \LogicException(sprintf('unknown type name: %s', $name));
+    }
+
+    public static function getTypeName($type)
+    {
+        if ($type == self::OBJ_COMMIT)
+        return 'commit';
+        else if ($type == self::OBJ_TREE)
+        return 'tree';
+        else if ($type == self::OBJ_BLOB)
+        return 'blob';
+        else if ($type == self::OBJ_TAG)
+        return 'tag';
+        throw new Exception(sprintf('no string representation of type %d', $type));
     }
     private $packs = array();
     protected $dir;
@@ -39,8 +52,8 @@ class Packfile
         $this->dir = $dir;
         if(!is_dir($this->dir)) throw new \RuntimeException('Not a directory');
         $handle = opendir($this->dir.'/pack');
-        while (($file = readdir($handle) !==false) {
-            if (preg_match('/^pack-([0-9a-fA-F]{40})\.idx$/', $entry, $matches)) {
+        while (($file = readdir($handle) !==false)) {
+            if (preg_match('/^pack-([0-9a-fA-F]{40})\.idx$/', $file, $matches)) {
                 $this->packs[] = $matches[1];
             }
         }
@@ -252,14 +265,14 @@ class Packfile
 
         // Still an unpacked object
         if (file_exists($path)) {
-            list($header, $data) = explode("\0", gzuncompress(file_get_contents($path)), 2);
+            list($header, $data) =  explode("\0", gzuncompress(file_get_contents($path)), 2);
             sscanf($header, "%s %d", $type, $size);
             $obj_type = self::getTypeId($type);
             $result = array($obj_type, $data);
         } elseif ($x = $this->findPackedObject($object_name)) {
             list($pack_name, $obj_offset) = $x;
 
-            $pack = fopen($this->dir.'/pack/pack-'.unpack('H*', $pack_name).'.pack';
+            $pack = fopen($this->dir.'/pack/pack-'.unpack('H*', $pack_name).'.pack');
             flock($pack, LOCK_SH);
 
             // Check pack
@@ -280,14 +293,17 @@ class Packfile
 
     /**
      * Get the data from the object
-     * @param  string $name The SHA of the object
+     * @param  string $sha1 The SHA of the object
      * @return string The data in the object
      */
-    public function getObject($name)
+    public function getObject($sha1)
     {
-        list($type, $data) = $this->getRawObject();
+        $name = pack('H*', $sha1);
+        list($type, $data) = $this->getRawObject($name);
+        $data_length = strlen($data);
+        $data_type = self::getTypeName($type);
 
-        return $data;
+        return $data_type.' '.$data_length."\0".$data;
     }
 
 }
