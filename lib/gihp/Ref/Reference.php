@@ -5,7 +5,9 @@ namespace gihp\Ref;
 use gihp\Defer\Deferrable;
 use gihp\Defer\Loader as DLoader;
 use gihp\Defer\Object as Defer;
+use gihp\Object\Internal;
 use gihp\Object\Commit;
+use gihp\Object\AnnotatedTag;
 
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
@@ -24,8 +26,8 @@ class Reference implements Deferrable, WritableInterface {
     const HEAD = 'heads';
 
     /**
-     * The commit that is referenced
-     * @var Commit
+     * The commit or annotated tag that is referenced
+     * @var Internal
      */
     protected $commit;
     /**
@@ -38,18 +40,18 @@ class Reference implements Deferrable, WritableInterface {
      * Creates a new head reference
      * @internal creates a new branch
      * @param string $name The name of the head reference
-     * @param Commit $commit The commit the reference points to
+     * @param Internal $commit The commit or annotated tag the reference points to
      */
-    function __construct($name, Commit $commit) {
+    function __construct($name, Internal $commit) {
         $this->name = $name;
         $this->commit = $commit;
     }
 
     /**
      * Updates the commit the reference points to
-     * @param Commit $commmit
+     * @param Internal $commit
      */
-    function setCommit(Commit $commit) {
+    function setCommit(Internal $commit) {
         $this->commit = $commit;
     }
 
@@ -58,16 +60,28 @@ class Reference implements Deferrable, WritableInterface {
      * @return Commit
      */
     function getCommit() {
+        if($this->commit instanceof Commit)
+            return $this->commit;
+        elseif($this->commit instanceof AnnotatedTag)
+            return $this->commit->getObject();
+    }
+
+    /**
+     * Gets the object the reference points to
+     * @return Commit|AnnotatedTag
+     */
+    function getObject() {
         return $this->commit;
     }
 
     /**
-     * Gets the SHA the reference refers to
-     * @return string
+     * Call magic!
+     * Functions are called on the object the reference refers to automatically
      */
-    function getSHA1() {
-        return $this->commit->getSHA1();
+    function __call($func, $args) {
+        return call_user_func_array(array($this->commit, $func), $args);
     }
+
     /**
      * Gets the name of the head reference
      * @internal the branche's name
@@ -100,14 +114,6 @@ class Reference implements Deferrable, WritableInterface {
     }
 
     /**
-     * Gets the data
-     * @internal it's just the SHA
-     */
-    function getData() {
-        return $this->commit->getSHA1();
-    }
-
-    /**
      * Gets the path
      * @internal The whole path
      */
@@ -120,7 +126,7 @@ class Reference implements Deferrable, WritableInterface {
      * @return string
      */
     function __toString() {
-        return $this->getData();
+        return $this->commit->getSHA1();
     }
 
     function write(IOInterface $io) {
