@@ -80,10 +80,11 @@ class Internal implements Deferrable
 
     /**
      * Gets the type as a string
+     * @internal
      * @return string
      */
-    protected function getTypeString()
-    {
+     function getTypeString()
+     {
         if ($this instanceof Commit) {
             return 'commit';
         }
@@ -92,6 +93,9 @@ class Internal implements Deferrable
         }
         if ($this instanceof Tree) {
             return 'tree';
+        }
+        if ($this instanceof AnnotatedTag) {
+            return 'tag';
         }
         throw new \RuntimeException('Bad type');
     }
@@ -122,7 +126,7 @@ class Internal implements Deferrable
         $header = $parts[0];
         $data = $parts[1];
 
-        if (!preg_match('/^(commit|blob|tree) ([0-9]+)$/', $header, $matches)) {
+        if (!preg_match('/^(commit|blob|tree|tag) ([0-9]+)$/', $header, $matches)) {
             throw new \RuntimeException('Bad object header');
         }
         $type = $matches[1];
@@ -138,6 +142,8 @@ class Internal implements Deferrable
                 return Blob::import($loader, $data);
             case 'tree':
                 return Tree::import($loader, $data);
+            case 'tag':
+                return AnnotatedTag::import($loader, $data);
             default:
                 throw \LogicException('Bad object type. Should have been checked already');
         }
