@@ -2,6 +2,10 @@
 
 namespace gihp\IO\File;
 
+/**
+ * Packfile version 2
+ * @internal
+ */
 class Packfile2 {
     private function __construct() {}
     /**
