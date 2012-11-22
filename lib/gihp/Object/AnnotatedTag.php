@@ -75,6 +75,7 @@ class AnnotatedTag extends Internal implements WritableInterface {
         $date = \DateTime::createFromFormat('U O', $matches[6]);
 
         return Defer::defer(array(
+            'message'=>$message,
             'object'=>$object,
             'name'=>$name,
             'tagger'=>$tagger,
