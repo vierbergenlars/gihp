@@ -8,16 +8,56 @@ use gihp\Defer\Object as Defer;
 
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
+use gihp\Metadata\Person;
 
+/**
+ * Represents a commit
+ */
 class Commit extends Internal implements WritableInterface {
+    /**
+     * Commit message
+     * @var string
+     */
     protected $message;
+    /**
+     * Root tree
+     * @var Tree
+     */
     protected $tree;
+    /**
+     * Commit author
+     * @var Person
+     */
     protected $author;
+    /**
+     * Time the commit was authored
+     * @var \DateTime
+     */
     protected $author_time;
+    /**
+     * Committer
+     * @var Person
+     */
     protected $committer;
+    /**
+     * Time the commit was made
+     * @var \DateTime
+     */
     protected $commit_time;
+    /**
+     * Parent commit, if any
+     * @var Commit|null
+     */
     protected $parent;
-    function __construct($message, Tree $root_tree, \gihp\Metadata\Person $author, \DateTime $date=null, Commit $parent=null) {
+    /**
+     * Creates a new commit object
+     * @param string $message Commit message
+     * @param Tree $root_tree The root tree describing the state of the working tree
+     * @param Person $author The commit author
+     * @param \DateTime $date The time the commit was made. If not set, assume now
+     * @param Commit $parent The parent commit. If not set, this is the first commit
+     */
+    function __construct($message, Tree $root_tree, Person $author, \DateTime $date=null, Commit $parent=null) {
         $this->message = $message;
         $this->tree = $root_tree;
         $this->author = $this->committer = $author;
@@ -27,40 +67,79 @@ class Commit extends Internal implements WritableInterface {
         parent::__construct(parent::COMMIT);
     }
 
-    function setCommitter(\gihp\Metadata\Person $committer, \DateTime $date=null) {
+    /**
+     * Sets the committer.
+     *
+     * It is assumed the author also is the committer and the time the commit was made is the commit time.
+     * If this is incorrect, set the committer and the commit time.
+     *
+     * @param Person $committer The actual committer
+     * @param \DateTime $date The date the commit was made. If null, assume now.
+    function setCommitter(Person $committer, \DateTime $date=null) {
         $this->committer = $committer;
         if($date === null) $date = new \DateTime;
         $this->commit_time = $date;
     }
 
+    /**
+     * Gets the commit message
+     * @return string
+     */
     function getMessage() {
         return $this->message;
     }
 
+    /**
+     * Get the commit's root tree
+     * @return Tree
+     */
     function getTree() {
         return $this->tree;
     }
 
+    /**
+     * Get the commit author
+     * @return Person
+     */
     function getAuthor() {
         return $this->author;
     }
 
+    /**
+     * Gets the time the commit was authored
+     * @return \DateTime
+     */
     function getAuthorTime() {
         return $this->author_time;
     }
 
+    /**
+     * Gets the committer
+     * @return Person
+     */
     function getCommitter() {
         return $this->committer;
     }
 
+    /**
+     * Gets the commit time
+     * @return \DateTime
+     */
     function getCommitTime() {
         return $this->commit_time;
     }
 
+    /**
+     * Gets the parent commit
+     * @return Commit|null
     function getParent() {
         return $this->{'parent'};
     }
 
+    /**
+     * Converts the commit to raw data.
+     * @return string
+     */
     function __toString() {
         $data = 'tree '.$this->tree->getSHA1();
         if($this->{'parent'})
@@ -72,6 +151,9 @@ class Commit extends Internal implements WritableInterface {
         return parent::__toString();
     }
 
+    /**
+     * Writes the commit and its dependencies to IO
+     */
     function write(IOInterface $io) {
         $io->addObject($this);
         if($this->{'parent'}) $this->{'parent'}->write($io);
