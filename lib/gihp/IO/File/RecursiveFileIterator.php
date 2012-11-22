@@ -1,5 +1,5 @@
 <?php
-namespace gihp\IO;
+namespace gihp\IO\File;
 
 class RecursiveFileIterator extends \RecursiveDirectoryIterator
 {
