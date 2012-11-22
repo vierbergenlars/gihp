@@ -148,39 +148,26 @@ class Tree extends Internal implements WritableInterface {
      * @return Tree The tree represented by the raw object
      */
     static function import(DLoader $loader, $tree) {
-        $parts = explode("\0", $tree);
-
-        $map = array();
-        $length = count($parts)-1;
-
-        foreach($parts as $i=>$part) {
-            if($i === 0) { //First object, partitial. Only mode and name
-                list($next_mode, $next_name) = explode(' ', $part, 2);
-                $map[$next_name]['mode'] = $next_mode;
-            }
-            elseif($length == $i) { //Last object, partitial. Only hash
-                $map[$next_name]['hash'] = $part;
-            }
-            else { // Normal objects, current hash and next mode and name
-                $map[$next_name]['hash'] = substr($part, 0, 20);
-                $next_mode_name = substr($part, 20);
-                list($next_mode, $next_name) = explode(' ', $next_mode_name, 2);
-                $map[$next_name]['mode'] = $next_mode;
-            }
-        }
-
+        $l = strlen($tree);
         $objects = array();
         $modes = array();
         $names = array();
-
-        foreach($map as $name=>$props) {
-            $mode = $props['mode'];
-            $decode = unpack('H*', $props['hash']);
-            $sha1 = $decode[1];
+        for($i=0; $i < $l;$i++) {
+            $mode = substr($tree, $i, 6);
+            $i+=7; //Also a space after it
+            $filename = '';
+            while($i++) {
+                if($tree[$i] === "\0") break;
+                $filename.=$tree[$i];
+            }
+            $bin_sha = substr($tree, $i, 20);
+            $i+=20;
+            $sha = unpack('H*', $bin_sha);
+            $sha1 = $sha[1];
 
             $objects[$sha1] = new Reference($loader, $sha1);
             $modes[$sha1] = $mode;
-            $names[$sha1] = $name;
+            $names[$sha1] = $filename;
         }
         return Defer::defer(array('objects'=>$objects, 'modes'=>$modes, 'names'=>$names), __CLASS__);
     }
