@@ -102,7 +102,6 @@ class Branch implements WritableInterface
     /**
      * Advances the HEAD of the branch to another commit
      *
-     * The new commit must be a child of the previous HEAD commit
      * @param Commit $commit The commit to advance the head to
      */
     private function advanceHead(Commit $commit)
@@ -114,16 +113,8 @@ class Branch implements WritableInterface
 
             return;
         }
-
-        while ($parent = $commit->getParent()) {
-            if ($parent->getSHA1() == $current->getSHA1()) {
-                $this->ref->setCommit($commit);
-
-                return;
-            }
-        }
-        throw new \RuntimeException('Cannot advance the head to a commit that is not a child of the head commit');
-    }
+        $this->ref->setCommit($commit);
+   }
 
     /**
      * Writes the branch to IO
