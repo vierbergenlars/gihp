@@ -6,7 +6,6 @@ use gihp\IO\WritableInterface;
 use gihp\Object\Commit;
 use gihp\Ref\Head;
 use gihp\Metadata\Person;
-use gihp\Object\Tree;
 /**
  * A git branch
  */
@@ -48,6 +47,14 @@ class Branch implements WritableInterface {
     }
 
     /**
+     * Get the current tree
+     * @return Tree
+     */
+    function getTree() {
+        return new Tree($this->getHeadCommit()->getTree());
+    }
+
+    /**
      * Get the HEAD commit of the branch
      * @return Commit
      */
@@ -84,7 +91,8 @@ class Branch implements WritableInterface {
      * @param Person $author The author and committer of the commit
      */
     function commit($message, Tree $tree, Person $author) {
-        $commit = new Commit($message, $tree, $author, null, $this->getHeadCommit());
+        $otree = $tree->getTree();
+        $commit = new Commit($message, $otree, $author, null, $this->getHeadCommit());
         $this->advanceHead($commit);
     }
 
