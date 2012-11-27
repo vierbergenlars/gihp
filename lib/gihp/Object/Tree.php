@@ -154,14 +154,15 @@ class Tree extends Internal implements WritableInterface {
         $names = array();
         for($i=0; $i < $l;$i++) {
             $mode = substr($tree, $i, 6);
-            $i+=7; //Also a space after it
+            $i+=6; //Also a space after it
             $filename = '';
             while($i++) {
                 if($tree[$i] === "\0") break;
                 $filename.=$tree[$i];
             }
+            $i++;
             $bin_sha = substr($tree, $i, 20);
-            $i+=20;
+            $i+=19;
             $sha = unpack('H*', $bin_sha);
             $sha1 = $sha[1];
 
