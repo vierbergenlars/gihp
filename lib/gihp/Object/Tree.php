@@ -152,6 +152,13 @@ class Tree extends Internal implements WritableInterface
         return parent::__toString();
     }
 
+    public function __clone()
+    {
+        foreach ($this->objects as &$object) {
+            $object[0] = clone $object[0];
+        }
+    }
+
     public function write(IOInterface $io)
     {
         $io->addObject($this);
