@@ -155,17 +155,21 @@ class Tree extends Internal implements WritableInterface {
         $l = strlen($tree);
         $objects = array();
         $names = array();
-        for($i=0; $i < $l;$i++) {
-            $mode = substr($tree, $i, 6);
-            $i+=6; //Also a space after it
+        for($i=0; $i < $l;) {
+            $mode = '';
+            do {
+                if($tree[$i] === chr(32)) break;
+                $mode.=$tree[$i];
+            } while(++$i);
+            $i++;
             $filename = '';
-            while($i++) {
+            do {
                 if($tree[$i] === "\0") break;
                 $filename.=$tree[$i];
-            }
+            } while(++$i);
             $i++;
             $bin_sha = substr($tree, $i, 20);
-            $i+=19;
+            $i+=20;
             $sha = unpack('H*', $bin_sha);
             $sha1 = $sha[1];
             $objects[$sha1] = array(new Reference($loader, $sha1), $mode, $filename);
