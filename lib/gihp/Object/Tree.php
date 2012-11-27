@@ -76,7 +76,11 @@ class Tree extends Internal implements WritableInterface
                 case '664':
                 case '755':
                     $mode = '100'.$mode;
-                break;
+                    // no break
+                case '100644':
+                case '100664':
+                case '700755':
+                    break;
                 default:
                     throw new \LogicException('Invalid file mode');
             }
