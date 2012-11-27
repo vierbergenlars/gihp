@@ -48,12 +48,7 @@ class Tree extends Internal implements WritableInterface
      */
     protected $objects = array();
     /**
-     * A hashmap of all object modes, ordered by their sha
-     * @var array
-     */
-    protected $modes = array();
-    /**
-     * A hashmap of all object names, ordered by their sha
+     * A hashmap of all object names, ordered by their name
      * @var array
      */
     protected $names = array();
@@ -86,9 +81,19 @@ class Tree extends Internal implements WritableInterface
                     throw new \LogicException('Invalid file mode');
             }
         }
-        $this->objects[$object->getSHA1()] = $object;
-        $this->modes[$object->getSHA1()] = $mode;
-        $this->names[$object->getSHA1()] = $name;
+        $this->objects[$object->getSHA1()] = array($object, $mode, $name);
+        $this->names[$name] = $object->getSHA1();
+    }
+
+    /**
+     * Removes an object from the tree
+     * @param string $sha1 The SHA of the object
+     */
+    public function removeObject($sha1)
+    {
+        $name = $this->objects[$sha1][2];
+        unset($this->names[$name]);
+        unset($this->objects[$sha1]);
     }
 
     /**
@@ -98,7 +103,7 @@ class Tree extends Internal implements WritableInterface
      */
     public function getObjectSHA1ByName($name)
     {
-        return (($result = array_search($name, $this->names))?$result:null);
+        return (isset($this->names[$name])?$this->names[$name]:null);
     }
 
     /**
@@ -108,11 +113,11 @@ class Tree extends Internal implements WritableInterface
      */
     public function getObjectMode($sha1)
     {
-        if (!isset($this->modes[$sha1])) {
+        if (!isset($this->objects[$sha1][1])) {
             throw new \RuntimeException('SHA not found in this tree');
         }
 
-        return $this->modes[$sha1];
+        return $this->objects[$sha1][1];
     }
 
     /**
@@ -122,11 +127,11 @@ class Tree extends Internal implements WritableInterface
      */
     public function getObject($sha1)
     {
-        if (!isset($this->objects[$sha1])) {
+        if (!isset($this->objects[$sha1][0])) {
             throw new \RuntimeException('SHA not found in this tree');
         }
 
-        return $this->objects[$sha1];
+        return $this->objects[$sha1][0];
     }
 
     /**
@@ -136,8 +141,8 @@ class Tree extends Internal implements WritableInterface
     public function __toString()
     {
         $this->setData('');
-        foreach ($this->objects as $sha=>$object) {
-            $this->appendData($this->modes[$sha].' '.$this->names[$sha].chr(0).pack('H*', $sha));
+        foreach ($this->objects as $object) {
+            $this->appendData($object[1].' '.$object[2].chr(0).pack('H*', $object[0]->getSHA1()));
         }
 
         return parent::__toString();
@@ -147,7 +152,7 @@ class Tree extends Internal implements WritableInterface
     {
         $io->addObject($this);
         foreach ($this->objects as $object) {
-            $object->write($io);
+            $object[0]->write($io);
         }
     }
 
@@ -161,7 +166,6 @@ class Tree extends Internal implements WritableInterface
     {
         $l = strlen($tree);
         $objects = array();
-        $modes = array();
         $names = array();
         for ($i=0; $i < $l;$i++) {
             $mode = substr($tree, $i, 6);
@@ -176,12 +180,10 @@ class Tree extends Internal implements WritableInterface
             $i+=19;
             $sha = unpack('H*', $bin_sha);
             $sha1 = $sha[1];
-
-            $objects[$sha1] = new Reference($loader, $sha1);
-            $modes[$sha1] = $mode;
-            $names[$sha1] = $filename;
+            $objects[$sha1] = array(new Reference($loader, $sha1), $mode, $filename);
+            $names[$filename] = $sha1;
         }
 
-        return Defer::defer(array('objects'=>$objects, 'modes'=>$modes, 'names'=>$names), __CLASS__);
+        return Defer::defer(array('objects'=>$objects,'names'=>$names), __CLASS__);
     }
 }
