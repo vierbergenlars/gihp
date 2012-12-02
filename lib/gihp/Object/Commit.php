@@ -65,7 +65,6 @@ class Commit extends Internal implements WritableInterface {
         $this->author_time = $this->commit_time = $date;
         if($parent)
             $this->{'parents'}[] = $parent;
-        parent::__construct(parent::COMMIT);
     }
 
     /**

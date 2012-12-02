@@ -55,7 +55,6 @@ class Tree extends Internal implements WritableInterface {
      * Creates a new, empty tree
      */
     function __construct() {
-        parent::__construct(parent::TREE);
     }
 
     /**

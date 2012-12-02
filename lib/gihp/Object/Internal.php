@@ -9,7 +9,6 @@ use gihp\Defer\Loader as DLoader;
  * Base class for all sha1-based objects
  *
  * Parses the basic git structure for these objects and verifies them
- * @internal
  */
 class Internal implements Deferrable {
     /**
@@ -17,24 +16,13 @@ class Internal implements Deferrable {
      * @var string
      */
     private $data;
-    /**
-     * Object is a commit
-     */
-    const COMMIT=1;
-    /**
-     * Object is a blob
-     */
-    const BLOB=2;
-    /**
-     * Object is a tree
-     */
-    const TREE=3;
 
     /**
      * Creates a new Internal object
      * @param string|null $data The data in the object
+     * @internal
      */
-    function __construct($type, $data=null) {
+    function __construct($data=null) {
         $this->data = $data;
     }
 
@@ -60,7 +48,7 @@ class Internal implements Deferrable {
      * Note: only the data, not the checksums and so around it.
      * @return string
      */
-    function getData() {
+    protected function getData() {
         return $this->data;
     }
 

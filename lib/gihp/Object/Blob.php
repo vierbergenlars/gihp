@@ -16,7 +16,7 @@ use gihp\IO\WritableInterface;
  */
 class Blob extends Internal implements WritableInterface {
     function __construct($data) {
-        parent::__construct(parent::BLOB, $data);
+        parent::__construct($data);
     }
 
     function write(IOInterface $io) {
