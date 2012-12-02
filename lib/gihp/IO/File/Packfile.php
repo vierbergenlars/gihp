@@ -53,7 +53,7 @@ class Packfile
         $this->dir = $dir;
         if(!is_dir($this->dir)) throw new \RuntimeException('Not a directory');
         $handle = opendir($this->dir.'/pack');
-        while (($file = readdir($handle) !==false)) {
+        while (($file = readdir($handle)) !==false) {
             if (preg_match('/^pack-([0-9a-fA-F]{40})\.idx$/', $file, $matches)) {
                 $this->packs[] = $matches[1];
             }
@@ -115,12 +115,12 @@ class Packfile
             fseek($handle, $offset);
             $after = self::bin_fuint32($handle);
         } else {
-            fseek($f, $offset + (ord($object_name[0]) -1)*4);
+            fseek($handle, $offset + (ord($object_name[0]) -1)*4);
             $cur = self::bin_fuint32($handle);
             $after = self::bin_fuint32($handle);
         }
 
-        return array($curr, $after);
+        return array($cur, $after);
     }
     /**
      * Tries to find an object in the packs
@@ -130,7 +130,7 @@ class Packfile
     protected function findPackedObject($sha1)
     {
         foreach ($this->packs as $index_sha) {
-            $index = fopen($this->dir.'/pack-'.$index_sha.'.idx', 'rb');
+            $index = fopen($this->dir.'/pack/pack-'.$index_sha.'.idx', 'rb');
             flock($index, LOCK_SH);
 
             // Read the magic number
@@ -213,7 +213,7 @@ class Packfile
             $size |= (( $c &0x7F) << $i); // That's what I'm thinking too =|
         }
 
-        if ($type == self::OBJ_COMMIT || $type == self::OBJ_TREE || $type == OBJ_BLOB || $type == OBJ_TAG) {
+        if ($type == self::OBJ_COMMIT || $type == self::OBJ_TREE || $type == self::OBJ_BLOB || $type == self::OBJ_TAG) {
             $data = gzuncompress(fread($pack, $size+512), $size);
         } elseif ($type == self::OBJ_OFS_DELTA) {
             $buf = fread($pack, $size+512+20);
@@ -273,7 +273,7 @@ class Packfile
         } elseif ($x = $this->findPackedObject($object_name)) {
             list($pack_name, $obj_offset) = $x;
 
-            $pack = fopen($this->dir.'/pack/pack-'.unpack('H*', $pack_name).'.pack');
+            $pack = fopen($this->dir.'/pack/pack-'.$pack_name.'.pack', 'rb');
             flock($pack, LOCK_SH);
 
             // Check pack
