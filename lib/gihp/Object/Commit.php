@@ -151,6 +151,7 @@ class Commit extends Internal implements WritableInterface
     /**
      * Converts the commit to raw data.
      * @return string
+     * @internal
      */
     public function __toString()
     {
@@ -168,6 +169,7 @@ class Commit extends Internal implements WritableInterface
 
     /**
      * Writes the commit and its dependencies to IO
+     * @internal
      */
     public function write(IOInterface $io)
     {
@@ -180,6 +182,7 @@ class Commit extends Internal implements WritableInterface
 
     /**
      * Imports the commit object
+     * @internal
      * @param  Loader $loader The object loader
      * @param  string $commit The raw commit data
      * @return Commit An instanciated commit that was represented by the raw data

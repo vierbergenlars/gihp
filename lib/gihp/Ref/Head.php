@@ -15,6 +15,8 @@ class Head extends Reference
 {
     /**
      * Loads the head reference from raw data
+     * @return Head
+     * @internal
      */
     public static function import(Dloader $loader, $data)
     {
