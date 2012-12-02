@@ -18,7 +18,7 @@ class Blob extends Internal implements WritableInterface
 {
     public function __construct($data)
     {
-        parent::__construct(parent::BLOB, $data);
+        parent::__construct($data);
     }
 
     public function write(IOInterface $io)
