@@ -141,6 +141,7 @@ class Commit extends Internal implements WritableInterface {
     /**
      * Converts the commit to raw data.
      * @return string
+     * @internal
      */
     function __toString() {
         $data = 'tree '.$this->tree->getSHA1();
@@ -156,6 +157,7 @@ class Commit extends Internal implements WritableInterface {
 
     /**
      * Writes the commit and its dependencies to IO
+     * @internal
      */
     function write(IOInterface $io) {
         $io->addObject($this);
@@ -167,6 +169,7 @@ class Commit extends Internal implements WritableInterface {
 
     /**
      * Imports the commit object
+     * @internal
      * @param Loader $loader The object loader
      * @param string $commit The raw commit data
      * @return Commit An instanciated commit that was represented by the raw data

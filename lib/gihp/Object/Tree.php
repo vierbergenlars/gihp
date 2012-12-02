@@ -43,11 +43,13 @@ class Tree extends Internal implements WritableInterface {
 
     /**
      * A hashmap of all objects, ordered by their sha
+     * @internal
      * @var array
      */
     protected $objects = array();
     /**
      * A hashmap of all object names, ordered by their name
+     * @internal
      * @var array
      */
     protected $names = array();
@@ -60,8 +62,8 @@ class Tree extends Internal implements WritableInterface {
     /**
      * Adds an object to the tree
      * @param string $name The name of the object
-     * @param Internal $object A tree object or a Blob
-     * @param string $mode When the object is a blob, the mode of the file as a string
+     * @param Internal $object A {@link Tree} or a {@link Blob}
+     * @param string $mode When the object is a {@link Blob}, the mode of the file as a string
      */
     function addObject($name, Internal $object, $mode = '644') {
         if($object instanceof self) {
@@ -132,6 +134,7 @@ class Tree extends Internal implements WritableInterface {
     /**
      * Converts the object to a raw string
      * @return string The raw data-stream that represents the tree
+     * @internal
      */
     function __toString() {
         $this->setData('');
@@ -141,12 +144,20 @@ class Tree extends Internal implements WritableInterface {
         return parent::__toString();
     }
 
+    /**
+     * Ensures cloning the tree also clones its subtrees
+     * @internal
+     */
     function __clone() {
         foreach($this->objects as &$object) {
             $object[0] = clone $object[0];
         }
     }
 
+    /**
+     * Writes the tree and all its linked objects to IO
+     * @internal
+     */
     function write(IOInterface $io) {
         $io->addObject($this);
         foreach($this->objects as $object) {
@@ -156,6 +167,7 @@ class Tree extends Internal implements WritableInterface {
 
     /**
      * Imports the tree object
+     * @internal
      * @param Loader $loader The object to load embedded references
      * @param string $tree The raw tree data
      * @return Tree The tree represented by the raw object

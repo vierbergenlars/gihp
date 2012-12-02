@@ -84,7 +84,8 @@ class Internal implements Deferrable {
     /**
      * The object as it should be written to disk, with all padding
      *
-     * @internal ALWAYS call this function after adding data with setData() or appendData()
+     * ALWAYS call this function after adding data with setData() or appendData()
+     * @internal
      * @return string
      */
     function __toString() {
@@ -95,9 +96,11 @@ class Internal implements Deferrable {
 
     /**
      * Imports a raw object from disk
+     *
+     * @internal
      * @param Loader $loader The loader to load embedded references
      * @param string $string The raw data
-     * @return Internal A subclass of this class, Commit, Blob or Tree
+     * @return Internal A subclass of this class, {@link Commit}, {@link Blob}, {@link Tree} or {@link AnnotatedTag}
      */
     static function import(DLoader $loader, $string) {
         $parts = explode("\0", $string, 2);

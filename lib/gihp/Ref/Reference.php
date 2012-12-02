@@ -13,7 +13,6 @@ use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 /**
  * The base of all references
- * @internal
  */
 class Reference implements Deferrable, WritableInterface {
     /**
@@ -28,17 +27,18 @@ class Reference implements Deferrable, WritableInterface {
     /**
      * The commit or annotated tag that is referenced
      * @var Internal
+     * @internal
      */
     protected $commit;
     /**
-     * The name of the head
-     * @internal the branch name
+     * The name of the head (the branch name)
+     * @internal
      * @var string
      */
     protected $name;
     /**
-     * Creates a new head reference
-     * @internal creates a new branch
+     * Creates a new reference
+     * @internal creates a new branch or tag
      * @param string $name The name of the head reference
      * @param Internal $commit The commit or annotated tag the reference points to
      */
@@ -124,6 +124,7 @@ class Reference implements Deferrable, WritableInterface {
     /**
      * Converts the reference to a raw data stream
      * @return string
+     * @internal
      */
     function __toString() {
         return $this->commit->getSHA1();
@@ -139,6 +140,7 @@ class Reference implements Deferrable, WritableInterface {
      * @param gihp\Defer\Loader $loader The loader class
      * @param string $data The raw data
      * @return Tag|Head One of reference's subclasses. Depending on the datatype
+     * @internal
      */
     static function import(DLoader $loader, $data) {
         list($type, $data) = explode("/", $data, 2);

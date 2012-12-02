@@ -15,6 +15,8 @@ class Tag extends Reference {
 
     /**
      * Loads the tag reference from raw data
+     * @return Tag
+     * @internal
      */
     static function import(Dloader $loader, $data) {
         list($name, $ref) = explode("\0", $data);

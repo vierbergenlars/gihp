@@ -15,6 +15,8 @@ class Head extends Reference {
 
     /**
      * Loads the head reference from raw data
+     * @return Head
+     * @internal
      */
     static function import(Dloader $loader, $data) {
         list($name, $ref) = explode("\0", $data);

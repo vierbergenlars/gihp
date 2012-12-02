@@ -15,14 +15,33 @@ use gihp\IO\WritableInterface;
  * Internal, but with the right data-type
  */
 class Blob extends Internal implements WritableInterface {
+    /**
+     * Creates a new blob
+     * @param string $data The data to associate with the blob
+     */
     function __construct($data) {
         parent::__construct($data);
     }
 
+    /**
+     * Gets the data in the blob
+     */
+    function getData() {
+        return parent::getData();
+    }
+
+    /**
+     * Writes this blob to IO
+     * @internal
+     */
     function write(IOInterface $io) {
         $io->addObject($this);
     }
 
+    /**
+     * Loads a blob
+     * @internal
+     */
     static function import(DLoader $loader, $data) {
         return new self($data);
     }
