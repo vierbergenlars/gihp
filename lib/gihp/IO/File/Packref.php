@@ -22,7 +22,8 @@ class Packref
         $data = file_get_contents($this->dir.'/packed-refs');
         $lines = explode("\n", $data);
         foreach ($lines as $line) {
-            if(substr(trim($line),0,1)=="#"||$line == "") continue; // Ignore the comment on top
+            $char1 = substr(trim($line),0,1);
+            if($char1=="#"||$char1=='^'||$line == "") continue; // Ignore the comment on top and annotated tags.
             list($ref, $name) = explode(" ", $line, 2);
             if(!file_exists($this->dir.'/'.$name))
                 file_put_contents($this->dir.'/'.$name, $ref);
