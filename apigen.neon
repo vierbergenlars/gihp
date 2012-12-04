@@ -1,0 +1,7 @@
+# Configuration file for ApiGen documentation generator (http://apigen.org)
+
+title: Gihp
+source: lib
+skipDocPrefix: gihp\Defer\HackedClasses
+main: gihp
+
