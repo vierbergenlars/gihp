@@ -67,17 +67,8 @@ class Tree implements WritableInterface {
      * @param string $filename The full filename to remove
      */
     function rmFile($filename) {
-        $parts = explode('/', $filename);
-        $file = array_pop($parts);
-        $current_tree = $this->tree;
-        foreach($parts as $chunk) {
-            if($objectsha = $current_tree->getObjectSHA1ByName($chunk)) {
-                $current_tree= $current_tree->getObject($objectsha);
-            }
-            else {
-                throw new \RuntimeException('File does not exist. Cannot remove file');
-            }
-        }
+        $file = basename($filename);
+        $current_tree = $this->getFileObject(dirname($filename));
         $sha = $current_tree->getObjectSHA1ByName($file);
         if(!$sha)
             throw new \RuntimeException('File does not exist. Cannot remove file');
@@ -91,21 +82,8 @@ class Tree implements WritableInterface {
      * @param int $mode If set, the mode of the file will be updated
      */
     function updateFile($filename, $data = null, $mode = null) {
-        $parts = explode('/', $filename);
-        $file = array_pop($parts);
-        $current_tree = $this->tree;
-        foreach($parts as $chunk) {
-            if($objectsha = $current_tree->getObjectSHA1ByName($chunk)) {
-                $current_tree= $current_tree->getObject($objectsha);
-            }
-            else {
-                throw new \RuntimeException('File does not exist. Cannot update file');
-            }
-        }
-        $sha = $current_tree->getObjectSHA1ByName($file);
-        if(!$sha) {
-            throw new \RuntimeException('File does not exist. Cannot update file');
-        }
+        $file = basename($filename);
+        $current_tree = $this->getFileObject(dirname($filename));
 
         if($mode !== null) {
             $mode = decoct($mode);
@@ -147,6 +125,25 @@ class Tree implements WritableInterface {
             throw new \RuntimeException('File is not a file. Cannot read file');
         }
         return $object->getData();
+    }
+
+    /**
+     * Lists all files in a directory
+     * @param string $dir The directory to list
+     * @return array An array containing all filenames and folders in that directory
+     */
+    function dirList($dir = '/') {
+        $object = $this->getFileObject($dir);
+        if(!($object instanceof OTree)) {
+            throw new \RuntimeException('File is not a tree. Cannot list files');
+        }
+        $files = $object->getObjects();
+        $ret = array();
+        foreach($files as $file) {
+            $ret[]=$file[2];
+        }
+
+        return $ret;
     }
 
     /**
