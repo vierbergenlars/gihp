@@ -73,7 +73,7 @@ class AnnotatedTag extends Internal implements WritableInterface
      * Gets the person who tagged it
      * @return Person
      */
-    public function getTagger()
+    public function getAuthor()
     {
         return $this->tagger;
     }
