@@ -175,14 +175,14 @@ class Packfile
             $op = ord($delta[$pos++]);
             if ($op & 0x80) {
                 $off = 0;
-                if ($opcode & 0x01) $off = ord($delta{$pos++});
-                if ($opcode & 0x02) $off |= ord($delta{$pos++}) << 8;
-                if ($opcode & 0x04) $off |= ord($delta{$pos++}) << 16;
-                if ($opcode & 0x08) $off |= ord($delta{$pos++}) << 24;
+                if ($op & 0x01) $off = ord($delta{$pos++});
+                if ($op & 0x02) $off |= ord($delta{$pos++}) << 8;
+                if ($op & 0x04) $off |= ord($delta{$pos++}) << 16;
+                if ($op & 0x08) $off |= ord($delta{$pos++}) << 24;
                 $len = 0;
-                if ($opcode & 0x10) $len = ord($delta{$pos++});
-                if ($opcode & 0x20) $len |= ord($delta{$pos++}) << 8;
-                if ($opcode & 0x40) $len |= ord($delta{$pos++}) << 16;
+                if ($op & 0x10) $len = ord($delta{$pos++});
+                if ($op & 0x20) $len |= ord($delta{$pos++}) << 8;
+                if ($op & 0x40) $len |= ord($delta{$pos++}) << 16;
                 if ($len == 0) $len = 0x10000;
 
                 $result.=substr($base, $off, $len);
@@ -229,7 +229,7 @@ class Packfile
             $delta = gzuncompress(substr($buf, $pos), $size);
             unset($buf);
 
-            $base_offset = $object_offset - $offset;
+            $base_offset = $obj_offset - $offset;
             assert($base_offset >= 0);
             list($type, $base) = self::unpackObject($pack, $base_offset);
 
