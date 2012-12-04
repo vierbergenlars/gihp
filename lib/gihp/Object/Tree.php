@@ -132,6 +132,15 @@ class Tree extends Internal implements WritableInterface {
     }
 
     /**
+     * Gets the objects array
+     * @internal
+     * @return array
+     */
+    function getObjects() {
+        return $this->objects;
+    }
+
+    /**
      * Converts the object to a raw string
      * @return string The raw data-stream that represents the tree
      * @internal
