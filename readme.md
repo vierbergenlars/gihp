@@ -27,8 +27,10 @@ Opening a repository and getting basic information is a piece of cake.
 <?php
 
 use gihp\Repository;
+use gihp\IO\File;
 
-$repo = new Repository('.'); // Load the repository that lives in the working directory
+$io = new File('.');
+$repo = new Repository($io); // Load the repository that lives in the working directory
 
 $branches = $repo->getBranches(); // Loads all branches in the repository
 
