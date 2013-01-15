@@ -2,10 +2,6 @@
 
 namespace gihp\Object;
 
-use gihp\Defer\Object as Defer;
-use gihp\Defer\Reference;
-use gihp\Defer\Loader as DLoader;
-
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 

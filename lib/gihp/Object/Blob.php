@@ -2,8 +2,6 @@
 
 namespace gihp\Object;
 
-use gihp\Defer\Loader as DLoader;
-
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 

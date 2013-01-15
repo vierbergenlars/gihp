@@ -2,10 +2,6 @@
 
 namespace gihp\Object;
 
-use gihp\Defer\Loader as DLoader;
-use gihp\Defer\Reference;
-use gihp\Defer\Object as Defer;
-
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 use gihp\Metadata\Person;
