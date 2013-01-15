@@ -3,7 +3,6 @@
 namespace gihp\Object;
 
 use gihp\Defer\Deferrable;
-use gihp\Defer\Loader as DLoader;
 
 /**
  * Base class for all sha1-based objects
@@ -16,7 +15,13 @@ class Internal implements Deferrable
      * Data in the object
      * @var string
      */
-    private $data;
+    protected $data;
+
+    /**
+     * Object SHA1
+     * @var string
+     */
+    protected $sha1;
 
     /**
      * Creates a new Internal object
@@ -34,6 +39,7 @@ class Internal implements Deferrable
      */
     protected function setData($data)
     {
+        $this->sha1 = null;
         $this->data = $data;
     }
 
@@ -43,6 +49,7 @@ class Internal implements Deferrable
      */
     protected function appendData($data)
     {
+        $this->sha1 = null;
         $this->data.=$data;
     }
 
@@ -58,85 +65,29 @@ class Internal implements Deferrable
     }
 
     /**
+     * Clears the SHA1 hash, causing it to be recalculated when it is retrieved.
+     * @internal
+     */
+    public function clearSHA1()
+    {
+        $this->sha1 = null;
+    }
+
+    public function __toString()
+    {
+        throw new \LogicException('Objects do no longer have a __toString() method.');
+    }
+
+    /**
      * Gets the SHA1 hash of the object
      * @return sting
      */
     public function getSHA1()
     {
-        return sha1($this->__toString());
-    }
+        if (!$this->sha1) {
+            $this->sha1 = sha1(\gihp\Parser\File::exportObject($this));
+        }
 
-    /**
-     * Gets the type as a string
-     * @internal
-     * @return string
-     */
-     function getTypeString()
-     {
-        if ($this instanceof Commit) {
-            return 'commit';
-        }
-        if ($this instanceof Blob) {
-            return 'blob';
-        }
-        if ($this instanceof Tree) {
-            return 'tree';
-        }
-        if ($this instanceof AnnotatedTag) {
-            return 'tag';
-        }
-        throw new \RuntimeException('Bad type');
-    }
-
-    /**
-     * The object as it should be written to disk, with all padding
-     *
-     * ALWAYS call this function after adding data with setData() or appendData()
-     * @internal
-     * @return string
-     */
-    public function __toString()
-    {
-        $header = $this->getTypeString().' '.strlen($this->data).chr(0);
-        $store = $header.$this->data;
-
-        return $store;
-    }
-
-    /**
-     * Imports a raw object from disk
-     *
-     * @internal
-     * @param  Loader   $loader The loader to load embedded references
-     * @param  string   $string The raw data
-     * @return Internal A subclass of this class, {@link Commit}, {@link Blob}, {@link Tree} or {@link AnnotatedTag}
-     */
-    public static function import(DLoader $loader, $string)
-    {
-        $parts = explode("\0", $string, 2);
-        $header = $parts[0];
-        $data = $parts[1];
-
-        if (!preg_match('/^(commit|blob|tree|tag) ([0-9]+)$/', $header, $matches)) {
-            throw new \RuntimeException('Bad object header');
-        }
-        $type = $matches[1];
-        $length = (int) $matches[2];
-
-        if (strlen($data) !== $length) {
-            throw new \RuntimeException('Data length mismatch');
-        }
-        switch ($type) {
-            case 'commit':
-                return Commit::import($loader, $data);
-            case 'blob':
-                return Blob::import($loader, $data);
-            case 'tree':
-                return Tree::import($loader, $data);
-            case 'tag':
-                return AnnotatedTag::import($loader, $data);
-            default:
-                throw \LogicException('Bad object type. Should have been checked already');
-        }
+        return $this->sha1;
     }
 }

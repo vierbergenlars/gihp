@@ -3,8 +3,6 @@
 namespace gihp\Object;
 
 use gihp\Defer\Object as Defer;
-use gihp\Defer\Reference;
-use gihp\Defer\Loader as DLoader;
 
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
@@ -88,6 +86,7 @@ class Tree extends Internal implements WritableInterface
         }
         $this->objects[$object->getSHA1()] = array($object, $mode, $name);
         $this->names[$name] = $object->getSHA1();
+        $this->clearSHA1();
     }
 
     /**
@@ -150,21 +149,6 @@ class Tree extends Internal implements WritableInterface
     }
 
     /**
-     * Converts the object to a raw string
-     * @return string The raw data-stream that represents the tree
-     * @internal
-     */
-    public function __toString()
-    {
-        $this->setData('');
-        foreach ($this->objects as $object) {
-            $this->appendData($object[1].' '.$object[2].chr(0).pack('H*', $object[0]->getSHA1()));
-        }
-
-        return parent::__toString();
-    }
-
-    /**
      * Ensures cloning the tree also clones its subtrees
      * @internal
      */
@@ -185,41 +169,5 @@ class Tree extends Internal implements WritableInterface
         foreach ($this->objects as $object) {
             $object[0]->write($io);
         }
-    }
-
-    /**
-     * Imports the tree object
-     * @internal
-     * @param  Loader $loader The object to load embedded references
-     * @param  string $tree   The raw tree data
-     * @return Tree   The tree represented by the raw object
-     */
-    public static function import(DLoader $loader, $tree)
-    {
-        $l = strlen($tree);
-        $objects = array();
-        $names = array();
-        for ($i=0; $i < $l;) {
-            $mode = '';
-            do {
-                if($tree[$i] === chr(32)) break;
-                $mode.=$tree[$i];
-            } while (++$i);
-            $i++;
-            $filename = '';
-            do {
-                if($tree[$i] === "\0") break;
-                $filename.=$tree[$i];
-            } while (++$i);
-            $i++;
-            $bin_sha = substr($tree, $i, 20);
-            $i+=20;
-            $sha = unpack('H*', $bin_sha);
-            $sha1 = $sha[1];
-            $objects[$sha1] = array(new Reference($loader, $sha1), $mode, $filename);
-            $names[$filename] = $sha1;
-        }
-
-        return Defer::defer(array('objects'=>$objects,'names'=>$names), __CLASS__);
     }
 }
