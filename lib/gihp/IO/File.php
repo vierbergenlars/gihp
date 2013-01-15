@@ -87,7 +87,7 @@ class File implements IOInterface {
             $packfile = new Packfile($dir);
         $decoded = $packfile->getObject($sha1);
         $loader = new \gihp\Object\Loader($this);
-        return \gihp\Parser\File::importObject($loader, $decoded);
+        return \gihp\Parser\File::importObject($loader, $decoded, $sha1);
     }
 
     function moveHead(\gihp\Symref\SymbolicReference $ref) {
