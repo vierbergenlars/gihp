@@ -13,6 +13,10 @@ use gihp\Object\AnnotatedTag;
 use gihp\Object\Tree;
 use gihp\Metadata\Person;
 
+/**
+ * Object importing and exporting for file storage
+ * @internal
+ */
 class File
 {
     /**
