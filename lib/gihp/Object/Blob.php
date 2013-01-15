@@ -2,8 +2,6 @@
 
 namespace gihp\Object;
 
-use gihp\Defer\Loader as DLoader;
-
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 
@@ -40,14 +38,5 @@ class Blob extends Internal implements WritableInterface
     public function write(IOInterface $io)
     {
         $io->addObject($this);
-    }
-
-    /**
-     * Loads a blob
-     * @internal
-     */
-    public static function import(DLoader $loader, $data)
-    {
-        return new self($data);
     }
 }
