@@ -2,8 +2,6 @@
 
 namespace gihp\Object;
 
-use gihp\Defer\Object as Defer;
-
 use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 
