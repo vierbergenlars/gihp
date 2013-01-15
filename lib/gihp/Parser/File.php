@@ -11,6 +11,7 @@ use gihp\Object\Blob;
 use gihp\Object\Commit;
 use gihp\Object\AnnotatedTag;
 use gihp\Object\Tree;
+use gihp\Metadata\Person;
 
 class File
 {
@@ -19,11 +20,12 @@ class File
      *
      * @param  \gihp\Object\Loader   $loader
      * @param  string                $string
+     * @param  string                $sha1
      * @return \gihp\Object\Internal
      * @throws \RuntimeException
      * @throws \LogicException
      */
-    public static function importObject(OLoader $loader, $string)
+    public static function importObject(OLoader $loader, $string, $sha1)
     {
         $parts = explode("\0", $string, 2);
         $header = $parts[0];
@@ -40,13 +42,13 @@ class File
         }
         switch ($type) {
             case 'commit':
-                return self::importCommit($loader, $data);
+                return self::importCommit($loader, $data, $sha1);
             case 'blob':
-                return self::importBlob($loader, $data);
+                return self::importBlob($loader, $data, $sha1);
             case 'tree':
-                return self::importTree($loader, $data);
+                return self::importTree($loader, $data, $sha1);
             case 'tag':
-                return self::importTag($loader, $data);
+                return self::importTag($loader, $data, $sha1);
             default:
                 throw new \LogicException('Bad object type. Should have been checked already');
         }
@@ -59,7 +61,7 @@ class File
      * @return \gihp\Object\Commit
      * @throws \RuntimeException
      */
-    private static function importCommit(OLoader $loader, $commit)
+    private static function importCommit(OLoader $loader, $commit, $sha1)
     {
         $parts = explode("\n\n", $commit, 2);
         $message = $parts[1];
@@ -90,6 +92,7 @@ class File
 
         return Defer::defer(
             array(
+                'sha1'=>$sha1,
                 'message'=>$message,
                 'tree'=>$tree,
                 'parents'=>$parent,
@@ -106,9 +109,9 @@ class File
      * @param  string              $data
      * @return \gihp\Object\Blob
      */
-    private static function importBlob(OLoader $loader, $data)
+    private static function importBlob(OLoader $loader, $data, $sha1)
     {
-        return new \gihp\Object\Blob($data);
+        return Defer::defer(array('sha1'=>$sha1, 'data'=>$data), 'gihp\\Object\\Blob');
     }
 
     /**
@@ -117,7 +120,7 @@ class File
      * @param  string              $tree
      * @return \gihp\Object\Tree
      */
-    private static function importTree(OLoader $loader, $tree)
+    private static function importTree(OLoader $loader, $tree, $sha1_tree)
     {
         $l = strlen($tree);
         $objects = array();
@@ -143,7 +146,7 @@ class File
             $names[$filename] = $sha1;
         }
 
-        return Defer::defer(array('objects'=>$objects,'names'=>$names), 'gihp\\Object\\Tree');
+        return Defer::defer(array('objects'=>$objects,'names'=>$names, 'sha1'=>$sha1_tree), 'gihp\\Object\\Tree');
     }
 
     /**
@@ -153,7 +156,7 @@ class File
      * @return \gihp\Object\AnnotatedTag
      * @throws \RuntimeException
      */
-    private static function importTag(OLoader $loader, $tag)
+    private static function importTag(OLoader $loader, $tag, $sha1)
     {
         list($header, $message) = explode("\n\n", $tag, 2);
 
@@ -170,6 +173,7 @@ class File
         $date = \DateTime::createFromFormat('U O', $matches[6]);
 
         return Defer::defer(array(
+            'sha1'=>$sha1,
             'message'=>$message,
             'object'=>$object,
             'name'=>$name,

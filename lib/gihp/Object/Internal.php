@@ -15,7 +15,13 @@ class Internal implements Deferrable
      * Data in the object
      * @var string
      */
-    private $data;
+    protected $data;
+
+    /**
+     * Object SHA1
+     * @var string
+     */
+    protected $sha1;
 
     /**
      * Creates a new Internal object
@@ -56,7 +62,7 @@ class Internal implements Deferrable
         return $this->data;
     }
 
-    private function __toString()
+    public function __toString()
     {
         throw new \LogicException('Objects do no longer have a __toString() method.');
     }
@@ -67,6 +73,8 @@ class Internal implements Deferrable
      */
     public function getSHA1()
     {
-        return sha1(\gihp\Parser\File::exportObject($this));
+        if(!$this->sha1) throw new \RuntimeException('SHA1 not available!');
+
+        return $this->sha1;
     }
 }
