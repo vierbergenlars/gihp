@@ -86,6 +86,7 @@ class Tree extends Internal implements WritableInterface
         }
         $this->objects[$object->getSHA1()] = array($object, $mode, $name);
         $this->names[$name] = $object->getSHA1();
+        $this->clearSHA1();
     }
 
     /**
