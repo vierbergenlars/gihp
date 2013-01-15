@@ -9,12 +9,6 @@ namespace gihp\IO;
 interface IOInterface
 {
     /**
-     * Creates a new IO object
-     * @param string $path The path to initialize the IO object to
-     */
-    public function __construct($path);
-
-    /**
      * (Re)initializes a repository
      */
     public function init();
