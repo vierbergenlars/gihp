@@ -3,8 +3,6 @@
 namespace gihp\Ref;
 
 use gihp\Defer\Deferrable;
-use gihp\Defer\Loader as DLoader;
-use gihp\Defer\Object as Defer;
 use gihp\Object\Internal;
 use gihp\Object\Commit;
 use gihp\Object\AnnotatedTag;
@@ -14,7 +12,7 @@ use gihp\IO\WritableInterface;
 /**
  * The base of all references
  */
-class Reference implements Deferrable, WritableInterface {
+abstract class Reference implements Deferrable, WritableInterface {
     /**
      * Reference is a tag
      */
@@ -84,73 +82,18 @@ class Reference implements Deferrable, WritableInterface {
 
     /**
      * Gets the name of the head reference
-     * @internal the branche's name
+     * @internal the branch/tag name
      */
     function getName() {
         return $this->name;
     }
-
+    
     /**
-     * Gets the reference type as a string
-     * @return string
+     * Writes the reference and the object it refers to to disk
+     * @param \gihp\IO\IOInterface $io
      */
-    private function getTypeAsString() {
-        if($this instanceof Head) {
-            return self::HEAD;
-        }
-        if($this instanceof Tag) {
-            return self::TAG;
-        }
-        throw new \RuntimeException('Bad type');
-
-    }
-
-    /**
-     * Gets the type of the ref
-     * @return string
-     */
-    function getType() {
-        return $this->getTypeAsString();
-    }
-
-    /**
-     * Gets the path
-     * @internal The whole path
-     */
-    function getPath() {
-        return $this->getTypeAsString().'/'.$this->name;
-    }
-
-    /**
-     * Converts the reference to a raw data stream
-     * @return string
-     * @internal
-     */
-    function __toString() {
-        return $this->commit->getSHA1();
-    }
-
     function write(IOInterface $io) {
         $io->addRef($this);
         $this->commit->write($io);
-    }
-
-    /**
-     * Imports a raw reference data stream
-     * @param gihp\Defer\Loader $loader The loader class
-     * @param string $data The raw data
-     * @return Tag|Head One of reference's subclasses. Depending on the datatype
-     * @internal
-     */
-    static function import(DLoader $loader, $data) {
-        list($type, $data) = explode("/", $data, 2);
-        switch($type) {
-            case self::TAG:
-                return Tag::import($loader, $data);
-            case self::HEAD:
-                return Head::import($loader, $data);
-            default:
-                throw new \LogicException('Bad reference type');
-        }
     }
 }

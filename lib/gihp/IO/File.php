@@ -30,7 +30,8 @@ class File implements IOInterface {
     }
 
     function addRef(\gihp\Ref\Reference $ref) {
-        $file = $this->path.'/refs/'.$ref->getPath();
+        list($name, $type, $ref) = \gihp\Parser\File::exportRef($ref);
+        $file = $this->path.'/refs/'.$type.'s/'.$name;
         $dir = dirname($file);
         if(!is_dir($dir)) {
             mkdir($dir, 0777, true);
@@ -42,7 +43,8 @@ class File implements IOInterface {
     }
 
     function removeRef(\gihp\Ref\Reference $ref) {
-        $file = $this->path.'/refs/'.$ref->getPath();
+        list($name, $type, $ref) = \gihp\Parser\File::exportRef($ref);
+        $file = $this->path.'/refs/'.$type.'s/'.$name;
         if(is_file($file)) {
             unlink($file);
         }
@@ -69,8 +71,8 @@ class File implements IOInterface {
             throw new \RuntimeException('Ref not found');
         }
         $contents = file_get_contents($file);
-        $loader = new \gihp\Ref\Loader($this);
-        return \gihp\Ref\Reference::import($loader, $path."\0".$contents);
+        $loader = new \gihp\Object\Loader($this);
+        return \gihp\Parser\File::importRef($loader, $contents, $path);
     }
 
     function addObject(\gihp\Object\Internal $object) {
@@ -105,6 +107,7 @@ class File implements IOInterface {
 
     function moveHead(\gihp\Symref\SymbolicReference $ref) {
         $file = $this->path.'/HEAD';
+        $ref = \gihp\Parser\File::exportSymRef($ref);
         file_put_contents($file, $ref);
     }
 
@@ -114,8 +117,7 @@ class File implements IOInterface {
             throw new \RuntimeException('HEAD not found');
         }
         $data = file_get_contents($file);
-        $loader = new \gihp\Symref\Loader($this);
-        return \gihp\Symref\SymbolicReference::import($loader, $data);
+        return \gihp\Parser\File::importSymRef($this, $data);
     }
 
     function gc() {
