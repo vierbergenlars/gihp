@@ -2,15 +2,23 @@
 
 namespace gihp\Parser;
 
-use gihp\Object\Loader as OLoader;
 use gihp\Defer\Object as Defer;
-use gihp\Defer\Reference;
+use gihp\Defer\Reference as DReference;
 
+use gihp\Object\Loader as OLoader;
 use gihp\Object\Internal;
 use gihp\Object\Blob;
 use gihp\Object\Commit;
 use gihp\Object\AnnotatedTag;
 use gihp\Object\Tree;
+
+use gihp\Ref\Loader as RLoader;
+use gihp\Ref\Reference;
+use gihp\Ref\Head;
+use gihp\Ref\Tag;
+
+use gihp\Symref\SymbolicReference;
+
 use gihp\Metadata\Person;
 
 /**
@@ -52,7 +60,7 @@ class File
             case 'tree':
                 return self::importTree($loader, $data, $sha1);
             case 'tag':
-                return self::importTag($loader, $data, $sha1);
+                return self::importAnnotatedTag($loader, $data, $sha1);
             default:
                 throw new \LogicException('Bad object type. Should have been checked already');
         }
@@ -78,7 +86,7 @@ class File
             throw new \RuntimeException('Bad commit object');
         }
         $tree = $matches[1];
-        $tree = new Reference($loader, $tree);
+        $tree = new DReference($loader, $tree);
         $parsed_parents = array();
         $parents = explode("\n", $matches[2]);
         foreach ($parents as $parent) {
@@ -86,7 +94,7 @@ class File
             if (!preg_match('/^parent ([0-9a-f]{40})$/', $parent, $pmatches)) {
                 throw new \RuntimeException('Bad commit object: parsing parents failed');
             }
-            $parsed_parents[] = new Reference($loader, $pmatches[1]);
+            $parsed_parents[] = new DReference($loader, $pmatches[1]);
         }
         $parent = $parsed_parents;
         $author = new \gihp\Metadata\Person($matches[4], $matches[5]);
@@ -146,7 +154,7 @@ class File
             $i+=20;
             $sha = unpack('H*', $bin_sha);
             $sha1 = $sha[1];
-            $objects[$sha1] = array(new Reference($loader, $sha1), $mode, $filename);
+            $objects[$sha1] = array(new DReference($loader, $sha1), $mode, $filename);
             $names[$filename] = $sha1;
         }
 
@@ -160,7 +168,7 @@ class File
      * @return \gihp\Object\AnnotatedTag
      * @throws \RuntimeException
      */
-    private static function importTag(OLoader $loader, $tag, $sha1)
+    private static function importAnnotatedTag(OLoader $loader, $tag, $sha1)
     {
         list($header, $message) = explode("\n\n", $tag, 2);
 
@@ -171,7 +179,7 @@ class File
             throw new \RuntimeException('Bad annotated tag header');
         }
 
-        $object = new Reference($loader, $matches[1]);
+        $object = new DReference($loader, $matches[1]);
         $name = $matches[3];
         $tagger = new Person($matches[4], $matches[5]);
         $date = \DateTime::createFromFormat('U O', $matches[6]);
@@ -204,7 +212,7 @@ class File
             $data = self::exportTree($object);
             $type = 'tree';
         } elseif ($object instanceof AnnotatedTag) {
-            $data = self::exportTag($object);
+            $data = self::exportAnnotatedTag($object);
             $type = 'tag';
         } else {
             throw new \LogicException('Bad object type');
@@ -263,12 +271,103 @@ class File
      * @param  \gihp\Object\AnnotatedTag $tag
      * @return string
      */
-    private static function exportTag(AnnotatedTag $tag)
+    private static function exportAnnotatedTag(AnnotatedTag $tag)
     {
         return 'object '.$tag->getObject()->getSHA1()
         ."\n". 'type '.$tag->getObject()->getTypeString()
         ."\n". 'tag '.$tag->getName()
         ."\n". 'tagger '.$tag->getAuthor().' '.$tag->getDate()->format('U O')
         ."\n\n".$tag->getMessage();
+    }
+
+    /**
+     * Creates a reference
+     * @param  \gihp\Ref\Loader    $loader
+     * @param  string              $contents
+     * @param  string              $path
+     * @return \gihp\Ref\Reference
+     * @throws \LogicException
+     */
+    public static function importRef(OLoader $loader, $data, $path)
+    {
+        list($type, $name) = explode('/', $path, 2);
+        $ref = substr($data, 0, 40);
+        switch ($type) {
+            case 'tags':
+                $type = 'gihp\\Ref\\Tag';
+                break;
+            case 'heads':
+                $type = 'gihp\\Ref\\Head';
+                break;
+            default:
+                throw new \LogicException('Bad reference type');
+        }
+
+        return Defer::defer(array(
+            'commit'=> new DReference($loader, $ref),
+            'name'=>$name
+        ), $type);
+    }
+
+    /**
+     * Exports a reference
+     * @param  \gihp\Ref\Reference $ref
+     * @return array
+     * @throws \LogicException
+     */
+    public static function exportRef(Reference $ref)
+    {
+        if ($ref instanceof Tag) {
+            $type = 'tag';
+        } elseif ($ref instanceof Head) {
+            $type = 'head';
+        } else {
+            throw new \LogicException('Bad reference type');
+        }
+        $path.=$ref->getName();
+        $data = $ref->getObject()->getSHA1();
+
+        return array($path, $type, $data);
+    }
+
+    /**
+     * Creates a symbolic reference
+     * @param  \gihp\IO\IOInterface          $io
+     * @param  string                        $data
+     * @return gihp\Symref\SymbolicReference
+     */
+    public static function importSymRef(\gihp\IO\IOInterface $io, $data)
+    {
+        if (substr($data, 0, 4) == 'ref:') {
+            $head = str_replace('refs/heads/', 'heads/', substr($data, 5));
+
+            return Defer::defer(
+                    array(
+                        'head'=>new DReference(new RLoader($io), trim($head))
+                    ),
+                    'gihp\\Symref\\SymbolicReference'
+                    );
+        } else {
+            return Defer::defer(
+                    array(
+                        'head'=> new DReference(new OLoader($io), trim($data))
+                    ),
+                    'gihp\\Symref\\SymbolicReference'
+                    );
+        }
+    }
+
+    /**
+     * Exports a symbolic reference
+     * @param  \gihp\Symref\SymbolicReference $symref
+     * @return string
+     */
+    public static function exportSymRef(SymbolicReference $symref)
+    {
+        if ($symref->isSymbolic()) {
+            return 'ref: refs/heads/'.$symref->getHead()->getName();
+        } else {
+            return $symref->getSHA1();
+        }
     }
 }
