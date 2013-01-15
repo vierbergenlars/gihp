@@ -37,6 +37,7 @@ class Internal implements Deferrable {
      * @param string $data
      */
     protected function setData($data) {
+        $this->sha1 = null;
         $this->data = $data;
     }
 
@@ -45,6 +46,7 @@ class Internal implements Deferrable {
      * @param string $data
      */
     protected function appendData($data) {
+        $this->sha1 = null;
         $this->data.=$data;
     }
 
@@ -58,6 +60,14 @@ class Internal implements Deferrable {
         return $this->data;
     }
     
+    /**
+     * Clears the SHA1 hash, causing it to be recalculated when it is retrieved.
+     * @internal
+     */
+    function clearSHA1() {
+        $this->sha1 = null;
+    }
+    
     function __toString() {
         throw new \LogicException('Objects do no longer have a __toString() method.');
     }
@@ -67,7 +77,9 @@ class Internal implements Deferrable {
      * @return sting
      */
     function getSHA1() {
-        if(!$this->sha1) throw new \RuntimeException('SHA1 not available!');
+        if(!$this->sha1) {
+            $this->sha1 = sha1(\gihp\Parser\File::exportObject($this));
+        }
         return $this->sha1;
     }
 }
