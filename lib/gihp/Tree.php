@@ -20,8 +20,13 @@ class Tree implements WritableInterface {
      * Creates a new tree helper
      * @param OTree $previous The tree to base all edit operations on
      */
-    function __construct(OTree $previous) {
-        $this->tree = clone $previous;
+    function __construct(OTree $previous=null) {
+        if($previous) {
+            $this->tree = clone $previous;
+        }
+        else {
+            $this->tree = new OTree;
+        }
     }
 
     /**
@@ -44,18 +49,9 @@ class Tree implements WritableInterface {
                 $current_tree = $subtree;
             }
             else {
-                $new_trees = array();
-                $new_trees[]= array(new OTree, $chunk);
-                while(($dir = next($parts)) !== false) {
-                    $new_trees[] = array(new Tree, $dir);
-                }
-                $this_tree = $current_tree;
-                foreach($new_trees as $info) {
-                    $this_tree->addObject($info[1], $info[0]);
-                    $this_tree = $info[0];
-                }
-                $current_tree = $this_tree;
-                break;
+                $subtree = new OTree;
+                $current_tree->addObject($chunk, $subtree);
+                $current_tree = $subtree;
             }
         }
         $blob = new Blob($data);
