@@ -7,9 +7,8 @@ use gihp\Defer\Deferrable;
 /**
  * Base class for all sha1-based objects
  *
- * Parses the basic git structure for these objects and verifies them
  */
-class Internal implements Deferrable
+abstract class Internal implements Deferrable
 {
     /**
      * Data in the object
@@ -28,7 +27,7 @@ class Internal implements Deferrable
      * @param string|null $data The data in the object
      * @internal
      */
-    public function __construct($data=null)
+    protected function __construct($data=null)
     {
         $this->data = $data;
     }
@@ -71,11 +70,6 @@ class Internal implements Deferrable
     public function clearSHA1()
     {
         $this->sha1 = null;
-    }
-
-    public function __toString()
-    {
-        throw new \LogicException('Objects do no longer have a __toString() method.');
     }
 
     /**
