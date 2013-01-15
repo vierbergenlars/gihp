@@ -68,6 +68,7 @@ class File implements IOInterface {
         }
         $path = $dir.'/'.substr($hash,2);
         if(file_exists($path)) return true;
+        $object = \gihp\Parser\File::exportObject($object);
         $encoded = gzcompress($object);
         return file_put_contents($path, $encoded);
     }
@@ -86,7 +87,7 @@ class File implements IOInterface {
             $packfile = new Packfile($dir);
         $decoded = $packfile->getObject($sha1);
         $loader = new \gihp\Object\Loader($this);
-        return \gihp\Object\Internal::import($loader, $decoded);
+        return \gihp\Parser\File::importObject($loader, $decoded);
     }
 
     function moveHead(\gihp\Symref\SymbolicReference $ref) {
