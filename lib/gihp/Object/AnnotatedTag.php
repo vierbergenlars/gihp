@@ -57,6 +57,14 @@ class AnnotatedTag extends Internal implements WritableInterface {
         $this->date = $date;
         $this->object = $object;
     }
+    
+    /**
+     * Gets the tag name
+     * @return string
+     */
+    function getName() {
+        return $this->name;
+    }
 
     /**
      * Gets the tag message
@@ -83,26 +91,11 @@ class AnnotatedTag extends Internal implements WritableInterface {
     }
 
     /**
-     * Gets the object that is being tagged, usually a {@ link Commit}
+     * Gets the object that is being tagged, usually a {@link Commit}
      * @return Internal
      */
     function getObject() {
         return $this->object;
-    }
-
-    /**
-     * Converts the annotated tag to a raw object
-     * @return string
-     * @internal
-     */
-    function __toString() {
-        $data = 'object '.$this->object->getSHA1()
-            ."\n". 'type '.$this->object->getTypeString()
-            ."\n". 'tag '.$this->name
-            ."\n". 'tagger '.$this->tagger.' '.$this->date->format('U O')
-            ."\n\n".$this->message;
-        $this->setData($data);
-        return parent::__toString();
     }
 
     /**
@@ -115,34 +108,5 @@ class AnnotatedTag extends Internal implements WritableInterface {
         $io->addRef($tag);
         $io->addObject($this);
         $this->object->write($io);
-    }
-
-    /**
-     * Creates an annotated tag object from raw data
-     * @return AnnotatedTag
-     * @internal
-     */
-    static function import(DLoader $loader, $tag) {
-        list($header, $message) = explode("\n\n", $tag, 2);
-
-        if(!preg_match('/^object ([0-9a-f]{40})\\n'.
-        'type (blob|commit|tree)\\n'.
-        'tag (.*)\\n'.
-        'tagger (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})$/', $header, $matches)) {
-            throw new \RuntimeException('Bad annotated tag header');
-        }
-
-        $object = new Reference($loader, $matches[1]);
-        $name = $matches[3];
-        $tagger = new Person($matches[4], $matches[5]);
-        $date = \DateTime::createFromFormat('U O', $matches[6]);
-
-        return Defer::defer(array(
-            'message'=>$message,
-            'object'=>$object,
-            'name'=>$name,
-            'tagger'=>$tagger,
-            'date'=>$date
-        ), __CLASS__);
     }
 }

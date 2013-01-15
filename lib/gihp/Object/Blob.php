@@ -37,12 +37,4 @@ class Blob extends Internal implements WritableInterface {
     function write(IOInterface $io) {
         $io->addObject($this);
     }
-
-    /**
-     * Loads a blob
-     * @internal
-     */
-    static function import(DLoader $loader, $data) {
-        return new self($data);
-    }
 }
