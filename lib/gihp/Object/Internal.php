@@ -3,14 +3,12 @@
 namespace gihp\Object;
 
 use gihp\Defer\Deferrable;
-use gihp\Defer\Loader as DLoader;
 
 /**
  * Base class for all sha1-based objects
  *
- * Parses the basic git structure for these objects and verifies them
  */
-class Internal implements Deferrable {
+abstract class Internal implements Deferrable {
     /**
      * Data in the object
      * @var string
@@ -28,7 +26,7 @@ class Internal implements Deferrable {
      * @param string|null $data The data in the object
      * @internal
      */
-    function __construct($data=null) {
+    protected function __construct($data=null) {
         $this->data = $data;
     }
 
@@ -66,10 +64,6 @@ class Internal implements Deferrable {
      */
     function clearSHA1() {
         $this->sha1 = null;
-    }
-    
-    function __toString() {
-        throw new \LogicException('Objects do no longer have a __toString() method.');
     }
 
     /**
