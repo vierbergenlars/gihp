@@ -11,13 +11,26 @@ use gihp\IO\File\RecursiveFileIterator;
  */
 class File implements IOInterface {
     private $path;
-    function __construct($path) {
-        $this->path = $path;
-        new Packref($this->path.'/.git');
+    private $bare;
+    function __construct($path, $bare = null) {
+        if($bare === null && is_dir($path.'/.git')) {
+            $bare = false;
+        }
+        else if($bare === null) {
+            $bare = true;
+        }
+        $this->bare = $bare;
+        if($this->bare) {
+            $this->path = $path;
+        }
+        else {
+            $this->path = $path.'/.git';
+        }
+        new Packref($this->path);
     }
 
     function addRef(\gihp\Ref\Reference $ref) {
-        $file = $this->path.'/.git/refs/'.$ref->getPath();
+        $file = $this->path.'/refs/'.$ref->getPath();
         $dir = dirname($file);
         if(!is_dir($dir)) {
             mkdir($dir, 0777, true);
@@ -29,7 +42,7 @@ class File implements IOInterface {
     }
 
     function removeRef(\gihp\Ref\Reference $ref) {
-        $file = $this->path.'/.git/refs/'.$ref->getPath();
+        $file = $this->path.'/refs/'.$ref->getPath();
         if(is_file($file)) {
             unlink($file);
         }
@@ -39,18 +52,18 @@ class File implements IOInterface {
     }
 
     function readRefs() {
-        $fsit = new RecursiveFileIterator($this->path.'/.git/refs', \FilesystemIterator::UNIX_PATHS|\FilesystemIterator::SKIP_DOTS);
+        $fsit = new RecursiveFileIterator($this->path.'/refs', \FilesystemIterator::UNIX_PATHS|\FilesystemIterator::SKIP_DOTS);
         $it = new \RecursiveIteratorIterator($fsit);
         $refs = array();
         foreach($it as $file) {
             if(!is_file($file)) continue;
-            $refs[] = str_replace($this->path.'/.git/refs/', '', $file);
+            $refs[] = str_replace($this->path.'/refs/', '', $file);
         }
         return $refs;
     }
 
     function readRef($path) {
-        $file = $this->path.'/.git/refs/'.$path;
+        $file = $this->path.'/refs/'.$path;
 
         if(!is_file($file)) {
             throw new \RuntimeException('Ref not found');
@@ -62,7 +75,7 @@ class File implements IOInterface {
 
     function addObject(\gihp\Object\Internal $object) {
         $hash = $object->getSHA1();
-        $dir = $this->path.'/.git/objects/'.substr($hash,0,2);
+        $dir = $this->path.'/objects/'.substr($hash,0,2);
         if(!is_dir($dir)) {
             mkdir($dir);
         }
@@ -75,13 +88,13 @@ class File implements IOInterface {
 
     function removeObject(\gihp\Object\Internal $object) {
         $hash = $object->getSHA1();
-        $file = $this->path.'/.git/objects/'.substr($hash,0,2).'/'.substr($hash, 2);
+        $file = $this->path.'/objects/'.substr($hash,0,2).'/'.substr($hash, 2);
         if(!is_file($file)) return;
         return unlink($file);
     }
 
     function readObject($sha1) {
-        $dir = $this->path.'/.git/objects/';
+        $dir = $this->path.'/objects/';
         static $packfile=null;
         if(!$packfile)
             $packfile = new Packfile($dir);
@@ -91,12 +104,12 @@ class File implements IOInterface {
     }
 
     function moveHead(\gihp\Symref\SymbolicReference $ref) {
-        $file = $this->path.'/.git/HEAD';
+        $file = $this->path.'/HEAD';
         file_put_contents($file, $ref);
     }
 
     function readHead() {
-        $file = $this->path.'/.git/HEAD';
+        $file = $this->path.'/HEAD';
         if(!is_file($file)) {
             throw new \RuntimeException('HEAD not found');
         }
@@ -106,5 +119,61 @@ class File implements IOInterface {
     }
 
     function gc() {
+    }
+    
+    function init() {
+        self::rrmdir($this->path); // Reinitialize the repo if necessary
+        mkdir($this->path);
+        file_put_contents($this->path.'/HEAD', 'ref: refs/heads/master');
+        $config = <<<CONF
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+CONF;
+        $config_bare = <<<CONF
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = true
+	symlinks = false
+	ignorecase = true
+CONF;
+        file_put_contents($this->path.'/config', $this->bare?$config_bare:$config);
+        file_put_contents($this->path.'/description', 'Unnamed repository; edit this file \'description\' to name the repository.');
+        mkdir($this->path.'/branches');
+        mkdir($this->path.'/hooks');
+        mkdir($this->path.'/info');
+        file_put_contents($this->path.'/info/exclude', '');
+        mkdir($this->path.'/objects');
+        mkdir($this->path.'/objects/info');
+        mkdir($this->path.'/objects/pack');
+        mkdir($this->path.'/refs');
+        mkdir($this->path.'/refs/heads');
+        mkdir($this->path.'/refs/tags');
+    }
+    
+    /**
+     * Recursively removes the contents of the directory
+     * @param string $dir
+     * @return boolean
+     */
+    private static function rrmdir($dir) {
+        if(!is_dir($dir))
+            return false;
+        $files = scandir($dir);
+        foreach($files as $file) {
+            if($file == '.' || $file == '..') continue;
+            if(is_dir($dir.'/'.$file)) {
+                self::rrmdir($dir.'/'.$file);
+            }
+            else {
+                unlink($dir.'/'.$file);
+            }
+        }
+        return rmdir($dir);
     }
 }

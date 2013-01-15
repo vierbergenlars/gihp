@@ -12,6 +12,12 @@ interface IOInterface {
      * @param string $path The path to initialize the IO object to
      */
     public function __construct($path);
+    
+    /**
+     * (Re)initializes a repository
+     */
+    public function init();
+    
     /**
      * Adds a new reference
      * @param \gihp\Ref\Reference $ref The reference to add
