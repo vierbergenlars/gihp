@@ -136,6 +136,15 @@ class Tree extends Internal implements WritableInterface {
     function getObjects() {
         return $this->objects;
     }
+    
+    /**
+     * Gets the names in the tree with their hash
+     * @internal
+     * @return array
+     */
+    function getNamesAndHashes() {
+        return $this->names;
+    }
 
     /**
      * Ensures cloning the tree also clones its subtrees
