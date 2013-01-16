@@ -324,7 +324,7 @@ class File
         } else {
             throw new \LogicException('Bad reference type');
         }
-        $path.=$ref->getName();
+        $path =$ref->getName();
         $data = $ref->getObject()->getSHA1();
 
         return array($path, $type, $data);
