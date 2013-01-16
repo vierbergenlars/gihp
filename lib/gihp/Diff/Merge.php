@@ -11,6 +11,8 @@ use gihp\Diff\Line\ConflictLine;
 
 /**
  * 3-way blob merge
+ * 
+ * Note: some portions of this file are licensed under the BSD3 license
  */
 class Merge {
     const USE_BASE = 0x1;
@@ -92,6 +94,7 @@ class Merge {
     /**
      * Merges two diffs
      * @author Luke Palmer <lrpalmer@gmail.com>
+     * @license https://github.com/luqui/merge3/blob/master/LICENSE BSD3
      * @param array $orig
      * @param array $ldiff
      * @param array $rdiff

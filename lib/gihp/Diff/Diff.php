@@ -10,6 +10,8 @@ use gihp\Object\Blob;
 
 /**
  * Creates a diff of two blobs
+ * 
+ * Note: some portions of this file are licensed under the BSD3 license
  */
 class Diff {
     private $diff = array();
@@ -27,6 +29,7 @@ class Diff {
     /**
      * Diffs two arrays
      * @author Luke Palmer <lrpalmer@gmail.com>
+     * @license https://github.com/luqui/merge3/blob/master/LICENSE BSD3
      * @param array $R
      * @param array $C
      * @return array
