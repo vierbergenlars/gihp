@@ -101,7 +101,7 @@ class Branch implements WritableInterface {
      *
      * @param Commit $commit The commit to advance the head to
      */
-    private function advanceHead(Commit $commit) {
+    function advanceHead(Commit $commit) {
         $current = $this->getHeadCommit();
 
         if(!$current) {
