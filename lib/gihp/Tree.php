@@ -149,7 +149,7 @@ class Tree implements WritableInterface
 
     /**
      * Gets the modified tree
-     * @return OTree
+     * @return \gihp\Objects\Tree
      */
     public function getTree()
     {

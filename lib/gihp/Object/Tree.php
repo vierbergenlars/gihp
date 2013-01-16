@@ -147,6 +147,16 @@ class Tree extends Internal implements WritableInterface
     }
 
     /**
+     * Gets the names in the tree with their hash
+     * @internal
+     * @return array
+     */
+    public function getNamesAndHashes()
+    {
+        return $this->names;
+    }
+
+    /**
      * Ensures cloning the tree also clones its subtrees
      * @internal
      */
