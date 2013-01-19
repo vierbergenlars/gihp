@@ -11,7 +11,7 @@ interface IOInterface {
      * (Re)initializes a repository
      */
     public function init();
-    
+
     /**
      * Adds a new reference
      * @param \gihp\Ref\Reference $ref The reference to add
@@ -32,7 +32,7 @@ interface IOInterface {
 
     /**
      * Reads a reference
-     * @return \gihp\Ref\Reference
+     * @return \gihp\Ref\Head|\gihp\Ref\Tag
      */
     public function readRef($path);
     /**
@@ -50,7 +50,7 @@ interface IOInterface {
     /**
      * Reads an object
      * @param string $sha1 The hash of the object
-     * @return \gihp\Object\Internal
+     * @return \gihp\Object\Commit|\gihp\Object\Blob|\gihp\Object\Tree|\gihp\Object\AnnotatedTag
      */
     public function readObject($sha1);
     /**
