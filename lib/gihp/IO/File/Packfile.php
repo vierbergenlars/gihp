@@ -40,6 +40,7 @@ class Packfile {
         throw new Exception(sprintf('no string representation of type %d', $type));
     }
     private $packs = array();
+    protected $cache = array();
     protected $dir;
     /**
      * Creates a new packfile handler
@@ -245,10 +246,8 @@ class Packfile {
      * @return array The object type and the object contents
      */
     protected function getRawObject($object_name) {
-        static $cache = array();
-
-        if(isset($cache[$object_name]))
-            return $cache[$object_name];
+        if(isset($this->cache[$object_name]))
+            return $this->cache[$object_name];
         $sha1 = unpack('H*', $object_name);
         $sha1 = $sha1[1];
         $path = $this->dir.'/'.substr($sha1, 0, 2).'/'.substr($sha1, 2);
@@ -278,7 +277,7 @@ class Packfile {
         else {
             throw new \RuntimeException('Object not found');
         }
-        $cache[$object_name] = $result;
+        $this->cache[$object_name] = $result;
         return $result;
     }
 
@@ -293,6 +292,15 @@ class Packfile {
         $data_length = strlen($data);
         $data_type = self::getTypeName($type);
         return $data_type.' '.$data_length."\0".$data;
+    }
+
+    /**
+     * Flushes the caches of the class
+     */
+    function clearCache() {
+        $this->cache = array();
+        $this->packs = array();
+        $this->__construct($this->dir);
     }
 
 }

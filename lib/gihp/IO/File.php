@@ -12,6 +12,7 @@ use gihp\IO\File\RecursiveFileIterator;
 class File implements IOInterface {
     private $path;
     private $bare;
+    private $packfile;
     function __construct($path, $bare = null) {
         if($bare === null && is_dir($path.'/.git')) {
             $bare = false;
@@ -97,10 +98,9 @@ class File implements IOInterface {
 
     function readObject($sha1) {
         $dir = $this->path.'/objects/';
-        static $packfile=null;
-        if(!$packfile)
-            $packfile = new Packfile($dir);
-        $decoded = $packfile->getObject($sha1);
+        if(!$this->packfile)
+            $this->packfile = new Packfile($dir);
+        $decoded = $this->packfile->getObject($sha1);
         $loader = new \gihp\Object\Loader($this);
         return \gihp\Parser\File::importObject($loader, $decoded, $sha1);
     }
@@ -120,9 +120,18 @@ class File implements IOInterface {
         return \gihp\Parser\File::importSymRef($this, $data);
     }
 
+    /**
+     * Clears all caches on IO level.
+     *
+     * Only useful for testing, don't use this in production code!
+     */
+    function clearCache() {
+        $this->packfile->clearCache();
+    }
+
     function gc() {
     }
-    
+
     function init() {
         self::rrmdir($this->path); // Reinitialize the repo if necessary
         mkdir($this->path);
@@ -157,7 +166,7 @@ CONF;
         mkdir($this->path.'/refs/heads');
         mkdir($this->path.'/refs/tags');
     }
-    
+
     /**
      * Recursively removes the contents of the directory
      * @param string $dir
