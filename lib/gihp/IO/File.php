@@ -13,6 +13,7 @@ class File implements IOInterface
 {
     private $path;
     private $bare;
+    private $packfile;
     public function __construct($path, $bare = null)
     {
         if ($bare === null && is_dir($path.'/.git')) {
@@ -107,10 +108,9 @@ class File implements IOInterface
     public function readObject($sha1)
     {
         $dir = $this->path.'/objects/';
-        static $packfile=null;
-        if(!$packfile)
-            $packfile = new Packfile($dir);
-        $decoded = $packfile->getObject($sha1);
+        if(!$this->packfile)
+            $this->packfile = new Packfile($dir);
+        $decoded = $this->packfile->getObject($sha1);
         $loader = new \gihp\Object\Loader($this);
 
         return \gihp\Parser\File::importObject($loader, $decoded, $sha1);
@@ -132,6 +132,16 @@ class File implements IOInterface
         $data = file_get_contents($file);
 
         return \gihp\Parser\File::importSymRef($this, $data);
+    }
+
+    /**
+     * Clears all caches on IO level.
+     *
+     * Only useful for testing, don't use this in production code!
+     */
+    public function clearCache()
+    {
+        $this->packfile->clearCache();
     }
 
     public function gc()
