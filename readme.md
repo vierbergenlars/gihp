@@ -1,5 +1,7 @@
 # gihp -- Git in PHP
 
+[![Build Status](https://travis-ci.org/vierbergenlars/gihp.png?branch=master)](https://travis-ci.org/vierbergenlars/gihp)
+
 Gihp is a set of classes to work with git repositories in pure PHP.
 Not a single line of shell code is executed.
 
