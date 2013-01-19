@@ -122,6 +122,10 @@ class Object
     class %s extends %1$s\\%2$s {
         private $loaded = false;
         private $defer;
+        function __construct($defer)
+        {
+            $this->defer = $defer;
+        }
         %s
     }';
 
@@ -129,6 +133,7 @@ class Object
 
             $methods_code = '';
             foreach ($methods as $method) {
+                if($method->isConstructor()) continue;
                 if($method->isStatic()) continue;
                 $parameter_code = '';
                 $parameter_call_code = '';
@@ -167,11 +172,7 @@ class Object
             file_put_contents($dirname.'/'.$filename, $code);
         }
         $hackreflection = new \ReflectionClass(__NAMESPACE__.'\\HackedClasses'.$ns.'\\'.$name);
-        $hack = $hackreflection->newInstanceWithoutConstructor();
-
-        $deferprop = $hackreflection->getProperty('defer');
-        $deferprop->setAccessible(true);
-        $deferprop->setValue($hack, $this);
+        $hack = $hackreflection->newInstance($this);
 
         return $hack;
     }
