@@ -33,7 +33,7 @@ interface IOInterface
 
     /**
      * Reads a reference
-     * @return \gihp\Ref\Reference
+     * @return \gihp\Ref\Head|\gihp\Ref\Tag
      */
     public function readRef($path);
     /**
@@ -50,8 +50,8 @@ interface IOInterface
     public function removeObject(\gihp\Object\Internal $object);
     /**
      * Reads an object
-     * @param  string                $sha1 The hash of the object
-     * @return \gihp\Object\Internal
+     * @param  string                                                                            $sha1 The hash of the object
+     * @return \gihp\Object\Commit|\gihp\Object\Blob|\gihp\Object\Tree|\gihp\Object\AnnotatedTag
      */
     public function readObject($sha1);
     /**
