@@ -10,6 +10,9 @@
     "require-dev": {
         "vierbergenlars/simpletest": "1.1.2"
     },
+    "suggest": {
+        "vierbergenlars/gihp-packfile": "Adds support for reading git packfiles"
+    },
     "license": "MIT",
     "autoload": {
         "psr-0": {
