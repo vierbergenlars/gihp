@@ -2,6 +2,7 @@
 
 namespace gihp\IO;
 
+use gihp\IO\File\Packfile;
 use gihp\IO\File\Packref;
 use gihp\IO\File\RecursiveFileIterator;
 
@@ -11,6 +12,7 @@ use gihp\IO\File\RecursiveFileIterator;
 class File implements IOInterface {
     private $path;
     private $bare;
+    private $packfile;
     function __construct($path, $bare = null) {
         if($bare === null && is_dir($path.'/.git')) {
             $bare = false;
@@ -95,12 +97,10 @@ class File implements IOInterface {
     }
 
     function readObject($sha1) {
-        $dir = $this->path.'/objects/'.substr($sha1,0,2);
-        $path = $dir.'/'.substr($sha1,2);
-        if(!is_file($path)) {
-            throw new \RuntimeException('Object not found');
-        }
-        $decoded = gzuncompress(file_get_contents($path));
+        $dir = $this->path.'/objects/';
+        if(!$this->packfile)
+            $this->packfile = new Packfile($dir);
+        $decoded = $this->packfile->getObject($sha1);
         $loader = new \gihp\Object\Loader($this);
         return \gihp\Parser\File::importObject($loader, $decoded, $sha1);
     }
@@ -126,6 +126,7 @@ class File implements IOInterface {
      * Only useful for testing, don't use this in production code!
      */
     function clearCache() {
+        $this->packfile->clearCache();
     }
 
     function gc() {
