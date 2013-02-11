@@ -202,20 +202,22 @@ class File
      */
     public static function exportObject(Internal $object)
     {
-        if ($object instanceof Commit) {
-            $data = self::exportCommit($object);
-            $type = 'commit';
-        } elseif ($object instanceof Blob) {
-            $data = self::exportBlob($object);
-            $type = 'blob';
-        } elseif ($object instanceof Tree) {
-            $data = self::exportTree($object);
-            $type = 'tree';
-        } elseif ($object instanceof AnnotatedTag) {
-            $data = self::exportAnnotatedTag($object);
-            $type = 'tag';
-        } else {
-            throw new \LogicException('Bad object type');
+        $type = self::getObjectTypeString($object);
+        switch ($type) {
+            case 'commit':
+                $data = self::exportCommit($object);
+                break;
+            case 'blob':
+                $data = self::exportBlob($object);
+                break;
+            case 'tree':
+                $data = self::exportTree($object);
+                break;
+            case 'tag':
+                $data = self::exportAnnotatedTag($object);
+                break;
+            default:
+                throw new \LogicException('Bad object type');
         }
 
         $header = $type.' '.strlen($data).chr(0);
@@ -274,10 +276,33 @@ class File
     private static function exportAnnotatedTag(AnnotatedTag $tag)
     {
         return 'object '.$tag->getObject()->getSHA1()
-        ."\n". 'type '.$tag->getObject()->getTypeString()
+        ."\n". 'type '.self::getObjectTypeString($tag->getObject());
         ."\n". 'tag '.$tag->getName()
         ."\n". 'tagger '.$tag->getAuthor().' '.$tag->getDate()->format('U O')
         ."\n\n".$tag->getMessage();
+    }
+
+    /**
+     * Gets the type of an object as a string
+     *
+     * @param  \gihp\Object\Internal $object
+     * @return string
+     */
+    private static function getObjectTypeString(Internal $object)
+    {
+        if ($object instanceof Commit) {
+            $type = 'commit';
+        } elseif ($object instanceof Blob) {
+            $type = 'blob';
+        } elseif ($object instanceof Tree) {
+            $type = 'tree';
+        } elseif ($object instanceof AnnotatedTag) {
+            $type = 'tag';
+        } else {
+            throw new \LogicException('Bad object type');
+        }
+
+        return $type;
     }
 
     /**
