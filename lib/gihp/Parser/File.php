@@ -276,7 +276,7 @@ class File
     private static function exportAnnotatedTag(AnnotatedTag $tag)
     {
         return 'object '.$tag->getObject()->getSHA1()
-        ."\n". 'type '.self::getObjectTypeString($tag->getObject());
+        ."\n". 'type '.self::getObjectTypeString($tag->getObject())
         ."\n". 'tag '.$tag->getName()
         ."\n". 'tagger '.$tag->getAuthor().' '.$tag->getDate()->format('U O')
         ."\n\n".$tag->getMessage();
