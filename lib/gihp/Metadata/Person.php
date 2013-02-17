@@ -46,4 +46,16 @@ class Person {
     function __toString() {
         return $this->name.' <'.$this->email.'>';
     }
+    
+    /**
+     * Parses an identification string to a person
+     * @param string $str A string in the format {name} <{email}>
+     * @return Person A new Person constructed with these data
+     * @throws \RuntimeException When an invalid identification string is given
+     */
+    static function parse($str) {
+        if(!preg_match('/(.*) <(.*)>/', $str, $matches))
+                throw new \RuntimeException('Invalid person identification string');
+        return new self($matches[1], $matches[2]);
+    }
 }
