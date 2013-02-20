@@ -15,15 +15,6 @@ use gihp\IO\WritableInterface;
 abstract class Reference implements Deferrable, WritableInterface
 {
     /**
-     * Reference is a tag
-     */
-    const TAG = 'tags';
-    /**
-     * Reference is a head
-     */
-    const HEAD = 'heads';
-
-    /**
      * The commit or annotated tag that is referenced
      * @var Internal
      * @internal
@@ -44,15 +35,6 @@ abstract class Reference implements Deferrable, WritableInterface
     public function __construct($name, Internal $commit)
     {
         $this->name = $name;
-        $this->commit = $commit;
-    }
-
-    /**
-     * Updates the commit the reference points to
-     * @param Internal $commit
-     */
-    public function setCommit(Internal $commit)
-    {
         $this->commit = $commit;
     }
 
@@ -81,9 +63,15 @@ abstract class Reference implements Deferrable, WritableInterface
     /**
      * Call magic!
      * Functions are called on the object the reference refers to automatically
+     * @deprecated 0.11.0
      */
     public function __call($func, $args)
     {
+        trigger_error('gihp\\Ref\\Reference::'+$func+'() is deprecated.'
+                .' It uses __call() magic method.'
+                .'Use gihp\\Ref\\Reference::getObject()->'+$func+'() instead.'
+                , E_USER_DEPRECATED);
+
         return call_user_func_array(array($this->commit, $func), $args);
     }
 
