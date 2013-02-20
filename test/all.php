@@ -27,5 +27,11 @@ class gihpPlumbingTests extends \TestSuite
     {
         parent::__construct('Gihp plumbing tests');
         $this->add(new plumbing\io);
+        $this->add(new plumbing\blob);
+        $this->add(new plumbing\tree);
+        $this->add(new plumbing\commit);
+        $this->add(new plumbing\annotatedtag);
+        $this->add(new plumbing\head);
+        $this->add(new plumbing\tag);
     }
 }
