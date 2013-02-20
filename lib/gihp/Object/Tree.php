@@ -59,9 +59,10 @@ class Tree extends Internal implements WritableInterface
 
     /**
      * Adds an object to the tree
-     * @param string   $name   The name of the object
-     * @param Internal $object A {@link Tree} or a {@link Blob}
-     * @param string   $mode   When the object is a {@link Blob}, the mode of the file as a string
+     * @param  string          $name   The name of the object
+     * @param  Internal        $object A {@link Tree} or a {@link Blob}
+     * @param  string          $mode   When the object is a {@link Blob}, the mode of the file as a string
+     * @throws \LogicException When an invalid mode is given
      */
     public function addObject($name, Internal $object, $mode = '644')
     {
@@ -110,8 +111,9 @@ class Tree extends Internal implements WritableInterface
 
     /**
      * Gets the mode of an object
-     * @param  string $sha1 The SHA of the object
-     * @return string The mode of the object
+     * @param  string            $sha1 The SHA of the object
+     * @return string            The mode of the object
+     * @throws \RuntimeException When the requested SHA1 is not found in the tree
      */
     public function getObjectMode($sha1)
     {
@@ -124,8 +126,9 @@ class Tree extends Internal implements WritableInterface
 
     /**
      * Gets the object
-     * @param  string    $sha1 The SHA of the object
-     * @return Tree|Blob The tree or the blob belonging to that SHA
+     * @param  string            $sha1 The SHA of the object
+     * @return Tree|Blob         The tree or the blob belonging to that SHA
+     * @throws \RuntimeException When the requested SHA1 is not found in the tree
      */
     public function getObject($sha1)
     {
