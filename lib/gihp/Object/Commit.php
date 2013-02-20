@@ -72,13 +72,13 @@ class Commit extends Internal implements WritableInterface
      * If this is incorrect, set the committer and the commit time.
      *
      * @param Person    $committer The actual committer
-     * @param \DateTime $date      The date the commit was made. If null, assume now.
+     * @param \DateTime $date      The date the commit was made. If null, don't change the commit date.
      */
     public function setCommitter(Person $committer, \DateTime $date=null)
     {
         $this->committer = $committer;
-        if($date === null) $date = new \DateTime;
-        $this->commit_time = $date;
+        if($date !== null)
+            $this->commit_time = $date;
     }
 
     /**
