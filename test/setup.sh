@@ -1,6 +1,6 @@
 #!/bin/sh
 cd "$( dirname "$0" )"
-rm -r repo
+rm -rf repo
 mkdir repo
 cd repo
 git init

@@ -9,6 +9,18 @@ $loader = new \Composer\Autoload\ClassLoader();
 $loader->add('test', __DIR__.'/..');
 $loader->register();
 
+class TraceReporter extends \TextReporter
+{
+    public function paintException($exception)
+    {
+        parent::paintException($exception);
+        print $exception->getTraceAsString();
+        print "\n";
+    }
+}
+
+\SimpleTest::prefer(new TraceReporter);
+
 class gihpPlumbingTests extends \TestSuite
 {
     public function __construct()

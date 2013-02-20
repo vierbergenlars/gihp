@@ -9,6 +9,7 @@ class io extends \UnitTestCase
     private $io;
     public function __construct()
     {
+        system('bash "'.__DIR__.'/../setup.sh"');
         $this->io = new File(__DIR__.'/../repo');
     }
 
