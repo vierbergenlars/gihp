@@ -13,9 +13,9 @@ use gihp\Diff\Merge as DMerge;
  */
 class Merge
 {
-    const OURS = DMerge::USE_BASE;
-    const THEIRS = DMerge::USE_HEAD;
-    const MANUAL = DMerge::USE_NONE;
+    const OURS = Diff\Merge::USE_BASE;
+    const THEIRS = Diff\Merge::USE_HEAD;
+    const MANUAL = Diff\Merge::USE_NONE;
     /**
      * Base branch to merge against
      * @var Branch
@@ -26,18 +26,6 @@ class Merge
      * @var Branch
      */
     protected $head;
-
-    /**
-     * Latest common commit of the two branches
-     * @var Commit
-     */
-    protected $common_commit;
-
-    /**
-     * Merge method to use
-     * @var int
-     */
-    protected $merge_method;
 
     /**
      * Creates a new merge
@@ -52,8 +40,8 @@ class Merge
 
     /**
      * Merges the two branches
-     * @param bool $ff     Fast-forward the base branch if possible
-     * @param int  $method Merge method to use
+     * @param bool $ff   Fast-forward the base branch if possible
+     * @param int  $mode Merge method to use
      * ({@link self::OURS} to solve conflicts by picking from the base branch,
      * {@link self::THEIRS} to solve conflicts by picking from the head branch,
      * {@link self::MANUAL} to write a conflicted file to the tree)
@@ -61,9 +49,8 @@ class Merge
      * {@link \gihp\Tree} The merged tree in all other cases
      * @throws \RuntimeException When there is no common ancestor
      */
-    public function merge($ff=true, $method = self::MANUAL)
+    public function merge($ff=true, $mode = self::MANUAL)
     {
-        $this->merge_method = $method;
         $base_history = $this->base->getHistory();
         $head_history = $this->head->getHistory();
         $base_history_sha = array();
@@ -76,9 +63,6 @@ class Merge
         }
         $head_diff = array_diff($head_history_sha, $base_history_sha);
         $base_diff = array_diff($base_history_sha, $head_history_sha);
-
-        var_dump($head_diff, $base_diff);
-        var_dump($head_history_sha, $base_history_sha);
 
         if (count($base_diff) == 0 && count($head_diff) > 0) {
             // Base has no modifications since head branched off
@@ -113,20 +97,24 @@ class Merge
         $base_latest_tree = $this->base->getTree();
         $head_latest_tree = $this->head->getTree();
 
-        $final_tree = $this->treeMerge($last_common_tree, $base_latest_tree, $head_latest_tree);
+        $final_tree = self::treeMerge($last_common_tree, $base_latest_tree, $head_latest_tree, $mode);
 
         return new Tree($final_tree);
     }
 
     /**
      * Merges two trees originating from a common tree
-     * @param  \gihp\Object\Tree $common_tree
-     * @param  \gihp\Object\Tree $base_tree
-     * @param  \gihp\Object\Tree $head_tree
+     * @param \gihp\Object\Tree $common_tree The common tree for both sides
+     * @param \gihp\Object\Tree $base_tree   Left side (their side)
+     * @param \gihp\Object\Tree $head_tree   Right side (our side)
+     * @param int               $mode        Merge method to use
+     * ({@link self::OURS} to solve conflicts by picking from the base branch,
+     * {@link self::THEIRS} to solve conflicts by picking from the head branch,
+     * {@link self::MANUAL} to write a conflicted file to the tree)
      * @return \gihp\Object\Tree
      * @throws \RuntimeException when trying to merge a tree and a blob
      */
-    public function treeMerge(OTree $common_tree, OTree $base_tree, OTree $head_tree)
+    public static function treeMerge(OTree $common_tree, OTree $base_tree, OTree $head_tree, $mode = self::MANUAL)
     {
         if ($base_tree->getSHA1() == $head_tree->getSHA1()) {
             // Trees are identical, return that one
@@ -157,12 +145,16 @@ class Merge
 
             if ($head_object instanceof OTree && $base_object instanceof OTree && $common_object instanceof OTree) {
                 // Both are trees, merge them recursively
-                $merged_object = $this->treeMerge($common_object, $base_object, $head_object);
+                $merged_object = self::treeMerge($common_object, $base_object, $head_object, $mode);
             } elseif ($head_object instanceof Blob && $base_object instanceof Blob && $common_object instanceof Blob) {
                 // Both are objects, merge them
-                $merged_object = $this->blobMerge($common_object, $base_object, $head_object);
+                $merged_object = self::blobMerge($common_object, $base_object, $head_object, $mode);
+            } elseif ($mode == self::OURS) {
+                $merged_object = $head_object;
+            } elseif ($mode == self::THEIRS) {
+                $merged_object = $base_object;
             } else {
-                throw new \RuntimeException('Cannot merge a blob and a tree');
+                throw new \RuntimeException('Cannot merge a blob and a tree (and no side chosen)');
             }
             // Add the object to the merged tree
             $merged_tree->addObject($name, $merged_object);
@@ -170,19 +162,23 @@ class Merge
     }
 
     /**
-     * Merges two blobs from a base blob
-     * @param  \gihp\Object\Blob $common_blob
-     * @param  \gihp\Object\Blob $base_blob
-     * @param  \gihp\Object\Blob $head_blob
+     * Merges two blobs from a common blob
+     * @param \gihp\Object\Blob $common_blob
+     * @param \gihp\Object\Blob $base_blob
+     * @param \gihp\Object\Blob $head_blob
+     * @param int               $mode        Merge method to use
+     * ({@link self::OURS} to solve conflicts by picking from the base branch,
+     * {@link self::THEIRS} to solve conflicts by picking from the head branch,
+     * {@link self::MANUAL} to write a conflicted file to the tree)
      * @return \gihp\Object\Blob The merged blob
      */
-    public function blobMerge(Blob $common_blob, Blob $base_blob, Blob $head_blob)
+    public static function blobMerge(Blob $common_blob, Blob $base_blob, Blob $head_blob, $mode = self::MANUAL)
     {
         $base_diff = new Diff($common_blob, $base_blob);
         $head_diff = new Diff($common_blob, $head_blob);
 
-        $merge = new DMerge($common_blob, $base_diff, $head_diff, $this->head->getName());
+        $merge = new DMerge($common_blob, $base_diff, $head_diff);
 
-        return $merge->merge($this->merge_mode);
+        return $merge->merge($mode);
     }
 }
