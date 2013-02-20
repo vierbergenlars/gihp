@@ -81,8 +81,8 @@ class File
 
         if(!preg_match('/^tree ([0-9a-f]{40})\\n'.
         '((parent [0-9a-f]{40}\\n)*)'.
-        'author (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})\\n'.
-        'committer (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})$/', $header, $matches)) {
+        'author (.*) <(.*)> ([0-9]+ [+-][0-9]{4})\\n'.
+        'committer (.*) <(.*)> ([0-9]+ [+-][0-9]{4})$/', $header, $matches)) {
             throw new \RuntimeException('Bad commit object');
         }
         $tree = $matches[1];
@@ -175,7 +175,7 @@ class File
         if(!preg_match('/^object ([0-9a-f]{40})\\n'.
         'type (blob|commit|tree)\\n'.
         'tag (.*)\\n'.
-        'tagger (.*) <(.*)> ([0-9]{10} [+-][0-9]{4})$/', $header, $matches)) {
+        'tagger (.*) <(.*)> ([0-9]+ [+-][0-9]{4})$/', $header, $matches)) {
             throw new \RuntimeException('Bad annotated tag header');
         }
 
