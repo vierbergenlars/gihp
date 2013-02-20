@@ -141,7 +141,8 @@ class File implements IOInterface
      */
     public function clearCache()
     {
-        $this->packfile->clearCache();
+        if($this->packfile)
+            $this->packfile->clearCache();
     }
 
     public function gc()
