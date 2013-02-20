@@ -108,8 +108,6 @@ class AnnotatedTag extends Internal implements WritableInterface
      */
     public function write(IOInterface $io)
     {
-        $tag = new Tag($this->name, $this->getSHA1());
-        $io->addRef($tag);
         $io->addObject($this);
         $this->object->write($io);
     }
