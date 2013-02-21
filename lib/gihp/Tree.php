@@ -6,6 +6,7 @@ use gihp\IO\IOInterface;
 use gihp\IO\WritableInterface;
 use gihp\Object\Tree as OTree;
 use gihp\Object\Blob;
+use gihp\Object\Internal;
 
 /**
  * Helps to build trees
@@ -32,31 +33,18 @@ class Tree implements WritableInterface
 
     /**
      * Add a new file to the tree
-     * @param string $filename The full filename to add to the tree
-     * @param string $data     The contents for the file
-     * @param int    $mode     The permissions for the file
+     * @param  string            $filename The full filename to add to the tree
+     * @param  string            $data     The contents for the file
+     * @param  int               $mode     The permissions for the file
+     * @throws \RuntimeException When its parent is not a tree
      */
     public function addFile($filename, $data, $mode=0644)
     {
         $mode = decoct($mode);
-        $parts = explode('/', $filename);
-        $file = array_pop($parts);
-        $current_tree = $this->tree;
-        foreach ($parts as $chunk) {
-            if ($objectsha =/* Yes, =*/ $current_tree->getObjectSHA1ByName($chunk)) {
-                $subtree = $current_tree->getObject($objectsha);
-                if (!($subtree instanceof OTree)) {
-                    throw new \RuntimeException($objectsha .' is not a directory. Cannot add file');
-                }
-                $current_tree = $subtree;
-            } else {
-                $subtree = new OTree;
-                $current_tree->addObject($chunk, $subtree);
-                $current_tree = $subtree;
-            }
-        }
-        $blob = new Blob($data);
-        $current_tree->addObject($file, $blob, $mode);
+        $tree = $this->getFileObject(dirname($filename), true);
+        if(!($tree instanceof OTree))
+            throw new \RuntimeException('Parent is not a tree. Cannot make file');
+        $tree->addObject(basename($filename), new Blob($data), $mode);
     }
 
     /**
@@ -109,8 +97,9 @@ class Tree implements WritableInterface
     public function moveFile($origin, $destination)
     {
         $filedata = $this->getFileObject($origin);
+        $filemode = $this->getFileMode($origin);
         $this->rmFile($origin);
-        $this->addFile($destination, $filedata);
+        $this->setFileObject($destination, $filedata, $filemode);
 
     }
 
@@ -159,11 +148,13 @@ class Tree implements WritableInterface
     }
 
     /**
-     * Gets the Blob object containing the file
-     * @param  string $filename The full filename
-     * @return Blob
+     * Gets the Blob object containing the file or the Tree containing the directory
+     * @param  string            $filename
+     * @param  boolean           $create   Create trees if they do not exist?
+     * @return OTree|Blob
+     * @throws \RuntimeException
      */
-    protected function getFileObject($filename)
+    protected function getFileObject($filename, $create = false)
     {
         $parts = explode('/', $filename);
         $obj = $this->tree;
@@ -171,12 +162,41 @@ class Tree implements WritableInterface
             if($chunk == '' || $chunk == '.') continue;
             if ($objectsha = $obj->getObjectSHA1ByName($chunk)) {
                 $obj= $obj->getObject($objectsha);
+            } elseif ($create) {
+                $new_obj = new OTree;
+                $obj->addObject($chunk, $new_obj);
+                $obj = $new_obj;
             } else {
                 throw new \RuntimeException('File does not exist. Cannot read file');
             }
         }
 
         return $obj;
+    }
+
+    /**
+     * Sets a file on a path to a new object
+     * @param string     $filename
+     * @param OTree|Blob $object
+     * @param int        $mode
+     */
+    protected function setFileObject($filename, Internal $object, $mode)
+    {
+        $tree = $this->getFileObject(dirname($filename), true);
+        $tree->addObject(basename($filename), $object, $mode);
+    }
+
+    /**
+     * Gets the file mode
+     * @param  string $filename
+     * @return int
+     */
+    protected function getFileMode($filename)
+    {
+        $tree = $this->getFileObject(dirname($filename));
+        $objectsha = $tree->getObjectSHA1ByName(basename($filename));
+
+        return $tree->getObjectMode($objectsha);
     }
 
     /**
