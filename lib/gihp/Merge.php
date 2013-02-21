@@ -13,8 +13,20 @@ use gihp\Diff\Merge as DMerge;
  */
 class Merge
 {
-    const OURS = Diff\Merge::USE_BASE;
-    const THEIRS = Diff\Merge::USE_HEAD;
+    /**
+     * Use our branch to resolve conflicts
+     * @var int
+     */
+    const OURS = Diff\Merge::USE_HEAD;
+    /**
+     * Use their branch to resolve conflicts
+     * @var int
+     */
+    const THEIRS = Diff\Merge::USE_BASE;
+    /**
+     * Don't resolve conflicts
+     * @var int
+     */
     const MANUAL = Diff\Merge::USE_NONE;
     /**
      * Base branch to merge against
@@ -42,8 +54,8 @@ class Merge
      * Merges the two branches
      * @param bool $ff   Fast-forward the base branch if possible
      * @param int  $mode Merge method to use
-     * ({@link self::OURS} to solve conflicts by picking from the base branch,
-     * {@link self::THEIRS} to solve conflicts by picking from the head branch,
+     * ({@link self::THEIRS} to solve conflicts by picking from the base branch,
+     * {@link self::OURS} to solve conflicts by picking from the head branch,
      * {@link self::MANUAL} to write a conflicted file to the tree)
      * @return boolean|\gihp\Tree true when fast-forwarded, false when the base branch is up-to-date,
      * {@link \gihp\Tree} The merged tree in all other cases
@@ -108,8 +120,8 @@ class Merge
      * @param \gihp\Object\Tree $base_tree   Left side (their side)
      * @param \gihp\Object\Tree $head_tree   Right side (our side)
      * @param int               $mode        Merge method to use
-     * ({@link self::OURS} to solve conflicts by picking from the base branch,
-     * {@link self::THEIRS} to solve conflicts by picking from the head branch,
+     * ({@link self::THEIRS} to solve conflicts by picking from the base branch,
+     * {@link self::OURS} to solve conflicts by picking from the head branch,
      * {@link self::MANUAL} to write a conflicted file to the tree)
      * @return \gihp\Object\Tree
      * @throws \RuntimeException when trying to merge a tree and a blob
@@ -167,8 +179,8 @@ class Merge
      * @param \gihp\Object\Blob $base_blob
      * @param \gihp\Object\Blob $head_blob
      * @param int               $mode        Merge method to use
-     * ({@link self::OURS} to solve conflicts by picking from the base branch,
-     * {@link self::THEIRS} to solve conflicts by picking from the head branch,
+     * ({@link self::THEIRS} to solve conflicts by picking from the base branch,
+     * {@link self::OURS} to solve conflicts by picking from the head branch,
      * {@link self::MANUAL} to write a conflicted file to the tree)
      * @return \gihp\Object\Blob The merged blob
      */
