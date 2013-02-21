@@ -84,6 +84,8 @@ class Tree implements WritableInterface
         $file = basename($filename);
         $current_tree = $this->getFileObject(dirname($filename));
 
+        $sha = $current_tree->getObjectSHA1ByName($file);
+
         if ($mode !== null) {
             $mode = decoct($mode);
         } else {
