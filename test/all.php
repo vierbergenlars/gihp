@@ -35,3 +35,12 @@ class gihpPlumbingTests extends \TestSuite
         $this->add(new plumbing\tag);
     }
 }
+
+class gihpPorcelainTests extends \TestSuite
+{
+    public function __construct()
+    {
+        parent::__construct('Gihp porcelain tests');
+        $this->add(new porcelain\tree);
+    }
+}
