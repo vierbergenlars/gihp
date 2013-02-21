@@ -88,6 +88,32 @@ class Tree extends Internal implements WritableInterface
         $this->clearSHA1();
     }
 
+    public function getSHA1()
+    {
+        if($this->sha1 === null)
+            $this->remap();
+        $sha1 = parent::getSHA1();
+        $this->clearSHA1();
+
+        return $sha1;
+    }
+
+    /**
+     * Remaps all names and objects to their new SHA1s
+     */
+    private function remap()
+    {
+        foreach ($this->names as $name=>&$sha) {
+            if (!array_key_exists($sha, $this->objects)) {
+                    continue;
+            }
+            $map = $this->objects[$sha];
+            unset($this->objects[$sha]);
+            $sha = $map[0]->getSHA1();
+            $this->objects[$sha] = $map;
+        }
+    }
+
     /**
      * Removes an object from the tree
      * @param string $sha1 The SHA of the object
@@ -97,6 +123,7 @@ class Tree extends Internal implements WritableInterface
         $name = $this->objects[$sha1][2];
         unset($this->names[$name]);
         unset($this->objects[$sha1]);
+        $this->clearSHA1();
     }
 
     /**
@@ -106,6 +133,9 @@ class Tree extends Internal implements WritableInterface
      */
     public function getObjectSHA1ByName($name)
     {
+        if($this->sha1 === null)
+            $this->remap();
+
         return (isset($this->names[$name])?$this->names[$name]:null);
     }
 
@@ -156,6 +186,9 @@ class Tree extends Internal implements WritableInterface
      */
     public function getNamesAndHashes()
     {
+        if($this->sha1 === null)
+            $this->remap();
+
         return $this->names;
     }
 
@@ -165,6 +198,8 @@ class Tree extends Internal implements WritableInterface
      */
     public function __clone()
     {
+        if($this->sha1 === null)
+            $this->remap();
         foreach ($this->objects as &$object) {
             $object[0] = clone $object[0];
         }
