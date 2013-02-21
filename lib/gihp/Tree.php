@@ -164,23 +164,17 @@ class Tree implements WritableInterface
     protected function getFileObject($filename)
     {
         $parts = explode('/', $filename);
-        $file = array_pop($parts);
-        $current_tree = $this->tree;
+        $obj = $this->tree;
         foreach ($parts as $chunk) {
-            if ($objectsha = $current_tree->getObjectSHA1ByName($chunk)) {
-                $current_tree= $current_tree->getObject($objectsha);
+            if($chunk == '' || $chunk == '.') continue;
+            if ($objectsha = $obj->getObjectSHA1ByName($chunk)) {
+                $obj= $obj->getObject($objectsha);
             } else {
                 throw new \RuntimeException('File does not exist. Cannot read file');
             }
         }
-        $sha = $current_tree->getObjectSHA1ByName($file);
-        if (!$sha) {
-            throw new \RuntimeException('File does not exist. Cannot read file');
-        }
-        $object = $current_tree->getObject($sha);
 
-        return $object;
-
+        return $obj;
     }
 
     /**
