@@ -43,7 +43,7 @@ class Tree implements WritableInterface
         $file = array_pop($parts);
         $current_tree = $this->tree;
         foreach ($parts as $chunk) {
-            if ($objectsha = $current_tree->getObjectSHA1ByName($chunk)) {
+            if ($objectsha =/* Yes, =*/ $current_tree->getObjectSHA1ByName($chunk)) {
                 $subtree = $current_tree->getObject($objectsha);
                 if (!($subtree instanceof OTree)) {
                     throw new \RuntimeException($objectsha .' is not a directory. Cannot add file');
