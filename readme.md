@@ -5,6 +5,8 @@
 Gihp is a set of classes to work with git repositories in pure PHP.
 Not a single line of shell code is executed.
 
+**Recently a full-history rewrite was executed** https://gist.github.com/vierbergenlars/5191906
+
 ## Installation
 
 Add `vierbergenlars/gihp` to your `composer.json` or run `composer.phar require vierbergenlars/gihp`
