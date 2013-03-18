@@ -45,7 +45,7 @@ class AnnotatedTag extends Internal implements WritableInterface
      * @param string    $message The message to associate with the tag
      * @param Person    $tagger  The person who tagged the object
      * @param \DateTime $date    The time of tagging
-     * @param Internan  $object  The object being tagged, usually a {@link Commit}
+     * @param Internal  $object  The object being tagged, usually a {@link Commit}
      */
     public function __construct($name, $message, Person $tagger, \DateTime $date, Internal $object)
     {
