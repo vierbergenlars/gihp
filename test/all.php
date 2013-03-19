@@ -43,5 +43,6 @@ class gihpPorcelainTests extends \TestSuite
         parent::__construct('Gihp porcelain tests');
         $this->add(new porcelain\tree);
         $this->add(new porcelain\tag);
+        $this->add(new porcelain\branch);
     }
 }
