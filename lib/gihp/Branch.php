@@ -21,20 +21,14 @@ class Branch implements WritableInterface
      * @var string
      */
     protected $name;
-    /**
-     * The IOInterface the branch uses
-     * @var gihp\IO\IOInterface
-     */
-    private $io;
+
     /**
      * Creates a new branch
-     * @param IOInterface $io     The IO to use
-     * @param string      $name   The name of the branch
-     * @param Commit      $commit The HEAD commit of the branch
+     * @param string $name   The name of the branch
+     * @param Commit $commit The HEAD commit of the branch
      */
-    public function __construct(IOInterface $io, $name, Commit $commit=null)
+    public function __construct($name, Commit $commit=null)
     {
-        $this->io = $io;
         $this->name = $name;
         if($commit)
             $this->ref = new Head($name, $commit);
@@ -51,16 +45,19 @@ class Branch implements WritableInterface
 
     /**
      * Get the current tree
-     * @return Tree
+     * @return Tree|null
      */
     public function getTree()
     {
+        if(!$this->getHeadCommit())
+
+            return null;
         return new Tree($this->getHeadCommit()->getTree());
     }
 
     /**
      * Get the HEAD commit of the branch
-     * @return Commit
+     * @return Commit|null
      */
     public function getHeadCommit()
     {
@@ -72,7 +69,7 @@ class Branch implements WritableInterface
 
     /**
      * Gets the history of the branch, linearized
-     * @return array An array of Commit objects
+     * @return array An array of {@link Commit} objects
      */
     public function getHistory()
     {
@@ -97,15 +94,18 @@ class Branch implements WritableInterface
 
     /**
      * Creates a new commit to the branch
-     * @param string $message The commit message
-     * @param Tree   $tree    The tree that describes the data in the commit
-     * @param Person $author  The author and committer of the commit
+     * @param  string $message The commit message
+     * @param  Tree   $tree    The tree that describes the data in the commit
+     * @param  Person $author  The author and committer of the commit
+     * @return Commit The commit that has just been made
      */
     public function commit($message, Tree $tree, Person $author)
     {
         $otree = $tree->getTree();
         $commit = new Commit($message, $otree, $author, null, $this->getHeadCommit());
         $this->advanceHead($commit);
+
+        return $commit;
     }
 
     /**
@@ -127,11 +127,10 @@ class Branch implements WritableInterface
 
     /**
      * Writes the branch to IO
-     * @param IOInterface $io Optionally a different IOInterface to write to
+     * @param IOInterface $io An IOInterface to write to
      */
-    public function write(IOInterface $io=null)
+    public function write(IOInterface $io)
     {
-        if($io === null) $io = $this->io;
         if(!$this->ref)
             throw new \LogicException('Branch cannot be written if no head reference exists');
         try {
@@ -142,16 +141,4 @@ class Branch implements WritableInterface
         $this->ref->write($io);
     }
 
-    /**
-     * Loads a branch from IO
-     * @param IOInterface $io   The IO to load the branch from
-     * @param string      $name The name of the branch
-     */
-    public static function load(IOInterface $io, $name)
-    {
-        $ref = $io->readRef('heads/'.$name);
-        $commit = $ref->getCommit();
-
-        return new self($io, $name, $commit);
-    }
 }
