@@ -19,10 +19,10 @@ Add `vierbergenlars/gihp` to your `composer.json` or run `composer.phar require 
 }
 ```
 
-## [API documentation](http://vierbergenlars.github.com/gihp)
+## [API documentation](http://apigen.juzna.cz/doc/vierbergenlars/gihp/)
 
 Only the API documentation for the latest version is available online.
-Earlier versions are available in `gh-pages` branch.
+Earlier versions can be generated from source with [ApiGen](http://apigen.org/)
 
 ## Basic usage
 
