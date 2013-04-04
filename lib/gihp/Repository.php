@@ -26,8 +26,6 @@ namespace gihp;
 
 use gihp\IO\WritableInterface;
 use gihp\IO\IOInterface;
-use gihp\Ref\Head;
-use gihp\Ref\Tag as RTag;
 
 /**
  * Represents a full git repository
@@ -105,7 +103,9 @@ class Repository
      */
     public function getBranch($name)
     {
-        return Branch::load($this->io, $name);
+        $ref = $this->io->readRef('heads/'.$name);
+        $commit = $ref->getCommit();
+        return new Branch($name, $commit);
     }
 
     /**
@@ -115,7 +115,9 @@ class Repository
      */
     public function getTag($name)
     {
-        return Tag::load($this->io, $name);
+        $ref = $this->io->readRef('tags/'.$name);
+        $object = $ref->getObject();
+        return new Tag($name, $object);
     }
 
     /**
@@ -133,9 +135,7 @@ class Repository
      */
     public function removeTag(Tag $tag)
     {
-        $name = $tag->getName();
-        $ref = new RTag($name, $tag->getCommit());
-        $this->io->removeRef($ref);
+        $this->io->removeRef($tag->getTag());
     }
 
     /**
@@ -153,9 +153,7 @@ class Repository
      */
     public function removeBranch(Branch $branch)
     {
-        $name = $branch->getName();
-        $ref = new Head($name, $branch->getHeadCommit());
-        $this->io->removeRef($ref);
+        $this->io->removeRef($branch->getHead());
     }
 
     /**
