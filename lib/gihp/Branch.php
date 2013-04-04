@@ -76,6 +76,15 @@ class Branch implements WritableInterface
             return null;
         return new Tree($this->getHeadCommit()->getTree());
     }
+    
+    /**
+     * Gets the underlying plumbing reference of the branch
+     * @return Head|null
+     */
+    public function getHead()
+    {
+        return $this->ref;
+    }
 
     /**
      * Get the HEAD commit of the branch
