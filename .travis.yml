@@ -3,8 +3,5 @@ php:
   - 5.3.3
   - 5.3
   - 5.4
-before_script:
-  - composer install --dev
-  - chmod +x test/setup.sh
-  - test/setup.sh
+before_script: composer install --dev
 script: php test/all.php
