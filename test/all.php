@@ -25,7 +25,7 @@
 namespace test;
 
 require_once __DIR__.'/../vendor/autoload.php';
-require_once __DIR__.'/../vendor/vierbergenlars/simpletest/autorun.php';
+require_once __DIR__.'/../vendor/simpletest/simpletest/autorun.php';
 
 $loader = new \Composer\Autoload\ClassLoader();
 $loader->add('test', __DIR__.'/..');
