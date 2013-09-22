@@ -8,7 +8,7 @@
         }
     ],
     "require-dev": {
-        "vierbergenlars/simpletest": "1.1.2"
+        "simpletest/simpletest": "1.1.2"
     },
     "license": "MIT",
     "autoload": {
